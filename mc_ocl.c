@@ -44,7 +44,15 @@ int main(int argc , char* argv[])
     double pi = 0.0;
 
     // Check if OpenCL is present and the devices available
+    int err;
+    cl_device_id device_id;
     
+    err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
+    if(err != CL_SUCCESS)
+    {
+	fprintf(stderr, "Failed to get devide ID!\n");
+    }
+    // Get and print device information
     
     // Check if the argument is ok
     if (argc < 2) {
