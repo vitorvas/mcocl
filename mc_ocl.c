@@ -66,7 +66,7 @@ int main(int argc , char* argv[])
     cl_uint n_devices;
     char* device_name;
     cl_device_type device_type;
-    char str[3] = "nil";
+    char str[32] = "";
     
     // Loop trough all platforms to find all devices
     i = 0;
@@ -97,7 +97,7 @@ int main(int argc , char* argv[])
 	// Allocate a string to store device's name
 	device_name = malloc(string_size*sizeof(char));
 	err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, string_size, device_name, NULL);
-	printf("Found the following device(s) for platform %d:\n --- %s\n", i, device_name);
+	printf("Found the following device(s) for platform %d:\n --- Device name: %s\n", i, device_name);
 	free(device_name);
 	
 	// ------------------------------------------------------------------------------------
@@ -113,15 +113,18 @@ int main(int argc , char* argv[])
 	}
 	if(device_type & CL_DEVICE_TYPE_GPU) strcpy(str,"GPU");
 	if(device_type & CL_DEVICE_TYPE_CPU) strcpy(str,"CPU");
+	if(device_type & CL_DEVICE_TYPE_ACCELERATOR) strcpy(str,"ACCELERATOR");
+	if(device_type & CL_DEVICE_TYPE_DEFAULT) strcpy(str,"DEFAULT");
 	else strcpy(str, "---");
 	
-	printf(" --- Type of device: %s\n", str);
-
+	printf(" --- Device type: %s\n\n", str);
+	
 	i++;
     }
     free(device_id);
     free(id_plat);
-    
+
+    printf(" ---------------------------------------------------------------- \n");
     // If find a GPU, give preference to it.
     // Othewise, run in parallel in a CPU
     
