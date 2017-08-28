@@ -22,6 +22,7 @@
 #include<stdlib.h>
 #include<errno.h>
 #include<math.h>
+#include<string.h> //strcpy()
 
 #include<CL/cl.h>
 
@@ -64,7 +65,9 @@ int main(int argc , char* argv[])
     size_t string_size;
     cl_uint n_devices;
     char* device_name;
-
+    cl_device_type device_type;
+    char str[3] = "nil";
+    
     // Loop trough all platforms to find all devices
     i = 0;
     while(i<n_plat)
@@ -91,20 +94,29 @@ int main(int argc , char* argv[])
 	{
 	    fprintf(stderr, "Failed to get device INFO!\n");
 	}
-	
 	// Allocate a string to store device's name
 	device_name = malloc(string_size*sizeof(char));
-	
 	err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, string_size, device_name, NULL);
-	
-	if(err != CL_SUCCESS)
-	{
-	    fprintf(stderr, "Failed to get device INFO!\n");
-	}
-
-	printf("Found the following device(s) for platform %d:\n --- %s\n", i, device_name); 
+	printf("Found the following device(s) for platform %d:\n --- %s\n", i, device_name);
 	free(device_name);
 	
+	// ------------------------------------------------------------------------------------
+	// Get device type information
+	//
+	// Important: cl_device_type is an enumeration set. The only way to print the type
+	// is coding the list inside the function
+	// One way is to compare bitwase: if (myargument & CL_DEVICE_TYPE_GPU)
+	err = clGetDeviceInfo(device_id[i], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
+	if(err != CL_SUCCESS)
+	{
+	     fprintf(stderr, "Failed to get device INFO!\n");
+	}
+	if(device_type & CL_DEVICE_TYPE_GPU) strcpy(str,"GPU");
+	if(device_type & CL_DEVICE_TYPE_CPU) strcpy(str,"CPU");
+	else strcpy(str, "---");
+	
+	printf(" --- Type of device: %s\n", str);
+
 	i++;
     }
     free(device_id);
