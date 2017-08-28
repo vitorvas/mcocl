@@ -45,31 +45,74 @@ int main(int argc , char* argv[])
 
     // Check if OpenCL is present and the devices available
     int err;
-    cl_device_id device_id;
+    cl_int n_plat = 0;
+    cl_platform_id* id_plat;
+    
+    // Before checking devices, must check platforms and devices
+    // for each platform.
+    err = clGetPlatformIDs(0, NULL, &n_plat);
+
+    id_plat = malloc(n_plat*sizeof(cl_int));
+    err = clGetPlatformIDs(n_plat, id_plat, NULL);
+    if(err != CL_SUCCESS)
+    {
+	fprintf(stderr, "Failed to get number of CL platforms!\n");
+    }
+    printf("Number of OpenCL platforms found: %d\n", n_plat);
+
+    cl_device_id* device_id;
     size_t string_size;
+    cl_uint n_devices;
     char* device_name;
-    
-    // make string empty
-    err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
-    if(err != CL_SUCCESS)
+
+    // Loop trough all platforms to find all devices
+    i = 0;
+    while(i<n_plat)
     {
-	fprintf(stderr, "Failed to get device ID!\n");
+
+	// Like platforms, the first call asks the number of devices
+	err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 0, NULL, &n_devices);
+	if(err != CL_SUCCESS)
+	{
+	    fprintf(stderr, "Failed to get the number of devices!\n");
+	}
+	device_id = malloc(n_devices*sizeof(cl_device_id));
+	
+	// make string empty
+	err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 1, &device_id[i], NULL);
+	if(err != CL_SUCCESS)
+	{
+	    fprintf(stderr, "Failed to get device ID!\n");
+	}
+	
+	// Get and print device information
+	err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, 0, NULL, &string_size);
+	if(err != CL_SUCCESS)
+	{
+	    fprintf(stderr, "Failed to get device INFO!\n");
+	}
+	
+	// Allocate a string to store device's name
+	device_name = malloc(string_size*sizeof(char));
+	
+	err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, string_size, device_name, NULL);
+	
+	if(err != CL_SUCCESS)
+	{
+	    fprintf(stderr, "Failed to get device INFO!\n");
+	}
+
+	printf("Found the following device(s) for platform %d:\n --- %s\n", i, device_name); 
+	free(device_name);
+	
+	i++;
     }
-
-    // Get and print device information
-    err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, 0, NULL, &string_size);
-
-    // Allocate a string to store device's name
-    device_name = malloc(string_size*sizeof(char));
-
-    err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, string_size, device_name, NULL);
+    free(device_id);
+    free(id_plat);
     
-    if(err != CL_SUCCESS)
-    {
-	fprintf(stderr, "Failed to get device INFO!\n");
-    }
+    // If find a GPU, give preference to it.
+    // Othewise, run in parallel in a CPU
     
-    printf("Found the following device (for platform 1):\n --- %s\n", device_name); 
     
     // Play with the following elements of openCL:
     // - cl_devide_id
@@ -105,8 +148,6 @@ int main(int argc , char* argv[])
     }
 
     printf("For %ld tries pi is %.6f\n", num, pi);
-
-    free(device_name);
     
     return 0;
 }
