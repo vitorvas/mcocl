@@ -112,9 +112,9 @@ int main(int argc , char* argv[])
 	     fprintf(stderr, "Failed to get device INFO!\n");
 	}
 	if(device_type & CL_DEVICE_TYPE_GPU) strcpy(str,"GPU");
-	if(device_type & CL_DEVICE_TYPE_CPU) strcpy(str,"CPU");
-	if(device_type & CL_DEVICE_TYPE_ACCELERATOR) strcpy(str,"ACCELERATOR");
-	if(device_type & CL_DEVICE_TYPE_DEFAULT) strcpy(str,"DEFAULT");
+	else if(device_type & CL_DEVICE_TYPE_CPU) strcpy(str,"CPU");
+	else if(device_type & CL_DEVICE_TYPE_ACCELERATOR) strcpy(str,"ACCELERATOR");
+	else if(device_type & CL_DEVICE_TYPE_DEFAULT) strcpy(str,"DEFAULT");
 	else strcpy(str, "---");
 	
 	printf(" --- Device type: %s\n\n", str);
