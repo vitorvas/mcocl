@@ -46,13 +46,37 @@ int main(int argc , char* argv[])
     // Check if OpenCL is present and the devices available
     int err;
     cl_device_id device_id;
+    size_t string_size;
+    char* device_name;
     
+    // make string empty
     err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_CPU, 1, &device_id, NULL);
     if(err != CL_SUCCESS)
     {
-	fprintf(stderr, "Failed to get devide ID!\n");
+	fprintf(stderr, "Failed to get device ID!\n");
     }
+
     // Get and print device information
+    err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, 0, NULL, &string_size);
+
+    // Allocate a string to store device's name
+    device_name = malloc(string_size*sizeof(char));
+
+    err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, string_size, device_name, NULL);
+    
+    if(err != CL_SUCCESS)
+    {
+	fprintf(stderr, "Failed to get device INFO!\n");
+    }
+    
+    printf("Found the following device (for platform 1):\n --- %s\n", device_name); 
+    
+    // Play with the following elements of openCL:
+    // - cl_devide_id
+    // - cl_kernel
+    // - cl_program
+    // - cl_command_queue
+    // - cl_context
     
     // Check if the argument is ok
     if (argc < 2) {
@@ -81,6 +105,8 @@ int main(int argc , char* argv[])
     }
 
     printf("For %ld tries pi is %.6f\n", num, pi);
+
+    free(device_name);
     
     return 0;
 }

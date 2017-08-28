@@ -3,6 +3,9 @@ project(MCOCL)
 
 find_package(OpenCL REQUIRED)
 
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -Wall")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall")
+
 add_executable(mc_ocl mc_ocl.c)
 target_link_libraries(mc_ocl m ${OpenCL_LIBRARY})
 
