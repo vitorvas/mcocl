@@ -45,16 +45,17 @@ int main(int argc , char* argv[])
     double pi = 0.0;
 
     // Check if OpenCL is present and the devices available
-    int err;
-    cl_int n_plat = 0;
+    cl_int err = 0;
+    cl_uint n_plat = 0;
     cl_platform_id* id_plat;
     
     // Before checking devices, must check platforms and devices
     // for each platform.
     err = clGetPlatformIDs(0, NULL, &n_plat);
-
+    
     id_plat = malloc(n_plat*sizeof(cl_int));
     err = clGetPlatformIDs(n_plat, id_plat, NULL);
+
     if(err != CL_SUCCESS)
     {
 	fprintf(stderr, "Failed to get number of CL platforms!\n");
@@ -67,12 +68,15 @@ int main(int argc , char* argv[])
     char* device_name;
     cl_device_type device_type;
     char str[32] = "";
+
+    // Hold platform number and device number of CPU
+    int CPU_plat = -1;
+    int CPU_device = -1;
     
     // Loop trough all platforms to find all devices
     i = 0;
     while(i<n_plat)
     {
-
 	// Like platforms, the first call asks the number of devices
 	err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 0, NULL, &n_devices);
 	if(err != CL_SUCCESS)
@@ -80,51 +84,80 @@ int main(int argc , char* argv[])
 	    fprintf(stderr, "Failed to get the number of devices!\n");
 	}
 	device_id = malloc(n_devices*sizeof(cl_device_id));
-	
-	// make string empty
-	err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 1, &device_id[i], NULL);
-	if(err != CL_SUCCESS)
+
+	uint j=0;
+	while(j<n_devices)
 	{
-	    fprintf(stderr, "Failed to get device ID!\n");
+	    // make string empty
+	    err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 1, &device_id[i], NULL);
+	    if(err != CL_SUCCESS)
+	    {
+		fprintf(stderr, "Failed to get device ID!\n");
+	    }
+	    // ----------------------------
+	    // Must have a loop for devices
+	    // ----------------------------
+	    
+	    // Get and print device information
+	    err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, 0, NULL, &string_size);
+	    if(err != CL_SUCCESS)
+	    {
+		fprintf(stderr, "Failed to get device INFO!\n");
+	    }
+	    // Allocate a string to store device's name
+	    device_name = malloc(string_size*sizeof(char));
+	    err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, string_size, device_name, NULL);
+	    printf("Found the following device(s) for platform %ld:\n --- Device name: %s\n", i, device_name);
+	    free(device_name);
+	
+	    // ------------------------------------------------------------------------------------
+	    // Get device type information
+	    //
+	    // Important: cl_device_type is an enumeration set. The only way to print the type
+	    // is coding the list inside the function
+	    // One way is to compare bitwase: if (myargument & CL_DEVICE_TYPE_GPU)
+	    err = clGetDeviceInfo(device_id[i], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
+	    if(err != CL_SUCCESS)
+	    {
+		fprintf(stderr, "Failed to get device INFO!\n");
+	    }
+	    if(device_type & CL_DEVICE_TYPE_GPU) strcpy(str,"GPU");
+	    else if(device_type & CL_DEVICE_TYPE_CPU) {
+		strcpy(str,"CPU");
+		CPU_plat = i;
+		CPU_device = j;
+	    }
+	    else if(device_type & CL_DEVICE_TYPE_ACCELERATOR) strcpy(str,"ACCELERATOR");
+	    else if(device_type & CL_DEVICE_TYPE_DEFAULT) strcpy(str,"DEFAULT");
+	    else strcpy(str, "---");
+	
+	    printf(" --- Device type: %s\n\n", str);
+	    j++;
 	}
-	
-	// Get and print device information
-	err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, 0, NULL, &string_size);
-	if(err != CL_SUCCESS)
-	{
-	    fprintf(stderr, "Failed to get device INFO!\n");
-	}
-	// Allocate a string to store device's name
-	device_name = malloc(string_size*sizeof(char));
-	err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, string_size, device_name, NULL);
-	printf("Found the following device(s) for platform %d:\n --- Device name: %s\n", i, device_name);
-	free(device_name);
-	
-	// ------------------------------------------------------------------------------------
-	// Get device type information
-	//
-	// Important: cl_device_type is an enumeration set. The only way to print the type
-	// is coding the list inside the function
-	// One way is to compare bitwase: if (myargument & CL_DEVICE_TYPE_GPU)
-	err = clGetDeviceInfo(device_id[i], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
-	if(err != CL_SUCCESS)
-	{
-	     fprintf(stderr, "Failed to get device INFO!\n");
-	}
-	if(device_type & CL_DEVICE_TYPE_GPU) strcpy(str,"GPU");
-	else if(device_type & CL_DEVICE_TYPE_CPU) strcpy(str,"CPU");
-	else if(device_type & CL_DEVICE_TYPE_ACCELERATOR) strcpy(str,"ACCELERATOR");
-	else if(device_type & CL_DEVICE_TYPE_DEFAULT) strcpy(str,"DEFAULT");
-	else strcpy(str, "---");
-	
-	printf(" --- Device type: %s\n\n", str);
-	
 	i++;
     }
-    free(device_id);
     free(id_plat);
 
-    printf(" ---------------------------------------------------------------- \n");
+    // With all platforms and devices, create a context for the CPU
+    printf("My chosen platform is %d and chosen device is %d\n", CPU_plat, CPU_device);
+    
+    cl_context my_context;
+    my_context = clCreateContext(NULL, 1, &device_id[CPU_device], NULL, NULL, &err);
+    if(err != CL_SUCCESS)
+    {
+	fprintf(stderr, "Failed to get CONTEXT!\n");
+    }
+    
+    size_t deviceBufferSize = -1;
+    err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, 0, NULL, &deviceBufferSize);
+    if(err != CL_SUCCESS)
+    {
+	fprintf(stderr, "Failed to get CONTEXT info!\n");
+    }
+    err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id[CPU_device], NULL);
+    printf(" --- List of devices of this context: %s\n", &device_id[CPU_device]); // Remember you can't print contexts and devices...
+
+    printf("---------------------------------------------------------------- \n");
     // If find a GPU, give preference to it.
     // Othewise, run in parallel in a CPU
     
@@ -138,12 +171,12 @@ int main(int argc , char* argv[])
     
     // Check if the argument is ok
     if (argc < 2) {
-	fprintf(stderr, "Wrong number of arguments (<2). Quiting...\n");
-	return(errno);
+	fprintf(stderr, "Wrong number of arguments. Using the default: 100000 numbers.\n");
+	num = 100000;
     }
-    
-    // Convert the argument to integer
-    num = atoi(argv[1]);
+    else
+	// Convert the argument to integer
+	num = atoi(argv[1]);
 
     while(i<num)
     {
@@ -163,6 +196,8 @@ int main(int argc , char* argv[])
     }
 
     printf("For %ld tries pi is %.6f\n", num, pi);
+
+    free(device_id);
     
     return 0;
 }
