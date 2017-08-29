@@ -26,6 +26,8 @@
 
 #include<CL/cl.h>
 
+
+
 // Using double drand48(void) to generate
 // random numbers (altough it's being called in a way
 // pseudo numbers are generated
@@ -157,7 +159,20 @@ int main(int argc , char* argv[])
 	return(errno);
     }
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id[CPU_device], NULL);
+    
+    // Must create a clCommandQueue
+    cl_command_queue myCmdQueue;
+//  myCmdQueue = clCreateCommandQueue(my_context, device_id[CPU_device], 0, NULL); Deprecated!
+    myCmdQueue = clCreateCommandQueueWithProperties(my_context, device_id[CPU_device], 0, NULL);
+    if(err != CL_SUCCESS)
+    {
+	fprintf(stderr, "Failed to create CL COMMAND QUEUE!\n");
+	return(errno);
+    }
 
+    clReleaseCommandQueue(myCmdQueue);
+    clReleaseContext(my_context);
+    
     printf("---------------------------------------------------------------- \n\n");
     // If find a GPU, give preference to it.
     // Othewise, run in parallel in a CPU
