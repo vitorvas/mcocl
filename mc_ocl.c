@@ -146,6 +146,7 @@ int main(int argc , char* argv[])
     if(err != CL_SUCCESS)
     {
 	fprintf(stderr, "Failed to get CONTEXT!\n");
+	return(errno);
     }
     
     size_t deviceBufferSize = -1;
@@ -153,11 +154,11 @@ int main(int argc , char* argv[])
     if(err != CL_SUCCESS)
     {
 	fprintf(stderr, "Failed to get CONTEXT info!\n");
+	return(errno);
     }
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id[CPU_device], NULL);
-    printf(" --- List of devices of this context: %s\n", &device_id[CPU_device]); // Remember you can't print contexts and devices...
 
-    printf("---------------------------------------------------------------- \n");
+    printf("---------------------------------------------------------------- \n\n");
     // If find a GPU, give preference to it.
     // Othewise, run in parallel in a CPU
     
