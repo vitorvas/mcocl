@@ -161,18 +161,56 @@ int main(int argc , char* argv[])
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id[CPU_device], NULL);
     
     // Must create a clCommandQueue
-    cl_command_queue myCmdQueue;
-//  myCmdQueue = clCreateCommandQueue(my_context, device_id[CPU_device], 0, NULL); Deprecated!
-    myCmdQueue = clCreateCommandQueueWithProperties(my_context, device_id[CPU_device], 0, NULL);
+    cl_command_queue my_queue;
+    //  my_queue = clCreateCommandQueue(my_context, device_id[CPU_device], 0, NULL); Deprecated!
+    my_queue = clCreateCommandQueueWithProperties(my_context, device_id[CPU_device], 0, NULL);
     if(err != CL_SUCCESS)
     {
 	fprintf(stderr, "Failed to create CL COMMAND QUEUE!\n");
 	return(errno);
     }
 
-    clReleaseCommandQueue(myCmdQueue);
-    clReleaseContext(my_context);
+    // After the command queue, how to execute my kernel?
+    // This a dummy kernel only to test compilation and execution
+    // Only one not used argument
+    char * source = {
+	"__kernel void mc(__global int *id)\n"
+	"{\n"
+	"id[get_global_id(0)] = get_global_id(0);\n"
+	"id[get_global_id(0)] = get_local_id(0);\n"
+        "}\n"
+    };
+    cl_program my_program;
+    my_program = clCreateProgramWithSource(my_context, 1, (const char**)&source, NULL, NULL);
+    clBuildProgram(my_program, 0, NULL, NULL, NULL, NULL);
+
+    cl_kernel my_kernel;
+    my_kernel = clCreateKernel(my_program, "mc", NULL);
     
+    // Create a buffer with data to my kernel (I'm not using it to write, only to get
+    // the values of the kernel)
+    cl_mem my_buffer;
+    my_buffer = clCreateBuffer(my_context, CL_MEM_READ_ONLY, 2*sizeof(int), NULL, NULL); 
+
+    int data[2]={99,99};
+    printf("\n --- BEFORE: %d, %d\n\n", data[0], data[1]);
+    
+    // Enqueue and execute the kernel
+    clEnqueueWriteBuffer(my_queue, my_buffer, CL_FALSE, 0, 2*sizeof(int), &data, 0, NULL, NULL);
+    clSetKernelArg(my_kernel, 0, sizeof(my_buffer), &my_buffer);
+
+    size_t global_dim[] = {1, 0, 0};
+    clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, NULL, 0, NULL, NULL);
+
+    clEnqueueReadBuffer(my_queue, my_buffer, CL_FALSE, 0, sizeof(cl_int)*2, &data, 0, NULL, NULL);
+
+    clFinish(my_queue);
+
+    printf(" --- AFTER: %d, %d\n\n", data[0], data[1]);
+    
+    clReleaseCommandQueue(my_queue);
+    clReleaseContext(my_context);
+
     printf("---------------------------------------------------------------- \n\n");
     // If find a GPU, give preference to it.
     // Othewise, run in parallel in a CPU
@@ -209,6 +247,9 @@ int main(int argc , char* argv[])
 
 	// avoid infinity loop
 	i++;
+
+	// Would be a nice feature to calculate
+	// the variance of pi calculations
     }
 
     printf("For %ld tries pi is %.6f\n", num, pi);
