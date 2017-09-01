@@ -174,10 +174,10 @@ int main(int argc , char* argv[])
     // This a dummy kernel only to test compilation and execution
     // Only one not used argument
     char * source = {
-	"__kernel void mc(__global int *id)\n"
+	"__kernel void mc(__global int *data)\n"
 	"{\n"
-	"id[get_global_id(0)] = get_global_id(0);\n"
-	"id[get_global_id(0)] = get_local_id(0);\n"
+	"int id = get_global_id(0);\n"
+	"data[id] = id;\n"
         "}\n"
     };
     cl_program my_program;
@@ -192,15 +192,16 @@ int main(int argc , char* argv[])
     cl_mem my_buffer;
     my_buffer = clCreateBuffer(my_context, CL_MEM_READ_ONLY, 2*sizeof(int), NULL, NULL); 
 
-    int data[2]={99,99};
+    int data[2] ={99,99};
+    
     printf("\n --- BEFORE: %d, %d\n\n", data[0], data[1]);
     
     // Enqueue and execute the kernel
     clEnqueueWriteBuffer(my_queue, my_buffer, CL_FALSE, 0, 2*sizeof(int), &data, 0, NULL, NULL);
     clSetKernelArg(my_kernel, 0, sizeof(my_buffer), &my_buffer);
 
-    size_t global_dim[] = {1, 0, 0};
-    clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, NULL, 0, NULL, NULL);
+    size_t global_dim[] = {2, 1, 1}; // Quantas dimensoes? 
+    clEnqueueNDRangeKernel(my_queue, my_kernel, 2, NULL, global_dim, NULL, 0, NULL, NULL);
 
     clEnqueueReadBuffer(my_queue, my_buffer, CL_FALSE, 0, sizeof(cl_int)*2, &data, 0, NULL, NULL);
 
