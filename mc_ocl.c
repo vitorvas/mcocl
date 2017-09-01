@@ -14,7 +14,8 @@
 // check if points randomly* chosen to be inside
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
-//
+# define SIZE 2 // Max size is 2 to work... why? My cpu?
+
 // The proportion of points inside the circle
 // above the total number of points gives pi/4
 
@@ -192,22 +193,30 @@ int main(int argc , char* argv[])
     cl_mem my_buffer;
     my_buffer = clCreateBuffer(my_context, CL_MEM_READ_ONLY, 2*sizeof(int), NULL, NULL); 
 
-    int data[2] ={99,99};
-    
-    printf("\n --- BEFORE: %d, %d\n\n", data[0], data[1]);
+    int data[SIZE];
+    for(int c=0; c<SIZE; c++)
+	data[c]=99;
+
+    printf("\n --- BEFORE: ");
+    for(int c=0; c<SIZE; c++)
+	printf("%d ", data[c]);
+    printf("\n");
     
     // Enqueue and execute the kernel
-    clEnqueueWriteBuffer(my_queue, my_buffer, CL_FALSE, 0, 2*sizeof(int), &data, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, my_buffer, CL_FALSE, 0, SIZE*sizeof(int), &data, 0, NULL, NULL);
     clSetKernelArg(my_kernel, 0, sizeof(my_buffer), &my_buffer);
 
-    size_t global_dim[] = {2, 1, 1}; // Quantas dimensoes? 
-    clEnqueueNDRangeKernel(my_queue, my_kernel, 2, NULL, global_dim, NULL, 0, NULL, NULL);
+    size_t global_dim[] = {SIZE, 1, 1}; // Quantas dimensoes? 
+    clEnqueueNDRangeKernel(my_queue, my_kernel, SIZE, NULL, global_dim, NULL, 0, NULL, NULL);
 
-    clEnqueueReadBuffer(my_queue, my_buffer, CL_FALSE, 0, sizeof(cl_int)*2, &data, 0, NULL, NULL);
+    clEnqueueReadBuffer(my_queue, my_buffer, CL_FALSE, 0, sizeof(cl_int)*SIZE, &data, 0, NULL, NULL);
 
     clFinish(my_queue);
 
-    printf(" --- AFTER: %d, %d\n\n", data[0], data[1]);
+    printf("\n --- AFTER: ");
+    for(int c=0; c<SIZE; c++)
+	printf("%d ", data[c]);
+    printf("\n");
     
     clReleaseCommandQueue(my_queue);
     clReleaseContext(my_context);
