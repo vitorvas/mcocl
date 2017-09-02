@@ -14,7 +14,9 @@
 // check if points randomly* chosen to be inside
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
-# define SIZE 3 // Com 3 funciona no AMD de casa. Olhar o porquê.
+# define SIZE 16 // Achei o erro! Estava no clEnqueueNDRangeKernel
+                // O parâmetro que estava sendo passado estava como SIZE
+                // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
 
 // The proportion of points inside the circle
 // above the total number of points gives pi/4
@@ -80,7 +82,7 @@ int main(int argc , char* argv[])
     i = 0;
     while(i<n_plat)
     {
-	// Like platforms, the first call asks the number of devices
+      // Like platforms, the first call asks the number of devices
       //err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 0, NULL, &n_devices);
       err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, 1, &device_id[i], NULL);
       n_devices = 1;
@@ -156,13 +158,15 @@ int main(int argc , char* argv[])
     
     size_t deviceBufferSize = -1;
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, 0, NULL, &deviceBufferSize);
+    printf("\n --- deviceBufferSize is: %d\n", deviceBufferSize);
+    err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id[CPU_device], NULL);
+    
     if(err != CL_SUCCESS)
     {
 	fprintf(stderr, "Failed to get CONTEXT info!\n");
 	return(errno);
     }
-    err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id[CPU_device], NULL);
-    
+
     // Must create a clCommandQueue
     cl_command_queue my_queue;
     //  my_queue = clCreateCommandQueue(my_context, device_id[CPU_device], 0, NULL); Deprecated!
@@ -208,8 +212,8 @@ int main(int argc , char* argv[])
     clEnqueueWriteBuffer(my_queue, my_buffer, CL_FALSE, 0, SIZE*sizeof(cl_int), &data, 0, NULL, NULL);
     clSetKernelArg(my_kernel, 0, sizeof(my_buffer), &my_buffer);
 
-    size_t global_dim[] = {SIZE, 1, 1}; // Quantas dimensoes? 
-    clEnqueueNDRangeKernel(my_queue, my_kernel, SIZE, NULL, global_dim, NULL, 0, NULL, NULL);
+    size_t global_dim[] = {SIZE, 0, 0}; // Quantas dimensoes? 
+    clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, NULL, 0, NULL, NULL);
 
     clEnqueueReadBuffer(my_queue, my_buffer, CL_FALSE, 0, SIZE*sizeof(cl_int), &data, 0, NULL, NULL);
 
