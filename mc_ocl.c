@@ -14,7 +14,7 @@
 // check if points randomly* chosen to be inside
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
-# define SIZE 2 // Max size is 2 to work... why? My cpu?
+# define SIZE 3 // Com 3 funciona no AMD de casa. Olhar o porquê.
 
 // The proportion of points inside the circle
 // above the total number of points gives pi/4
@@ -81,66 +81,68 @@ int main(int argc , char* argv[])
     while(i<n_plat)
     {
 	// Like platforms, the first call asks the number of devices
-	err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 0, NULL, &n_devices);
-	if(err != CL_SUCCESS)
+      //err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 0, NULL, &n_devices);
+      err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, 1, &device_id[i], NULL);
+      n_devices = 1;
+      if(err != CL_SUCCESS)
 	{
-	    fprintf(stderr, "Failed to get the number of devices!\n");
+	  fprintf(stderr, "Failed to get the number of devices!\n");
 	}
-	device_id = malloc(n_devices*sizeof(cl_device_id));
-
-	uint j=0;
-	while(j<n_devices)
+      device_id = malloc(n_devices*sizeof(cl_device_id));
+      
+      uint j=0;
+      while(j<n_devices)
 	{
-	    // make string empty
-	    err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 1, &device_id[i], NULL);
-	    if(err != CL_SUCCESS)
+	  // make string empty
+	  err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 1, &device_id[i], NULL);
+	  if(err != CL_SUCCESS)
 	    {
-		fprintf(stderr, "Failed to get device ID!\n");
+	      fprintf(stderr, "Failed to get device ID!\n");
 	    }
 	    // ----------------------------
 	    // Must have a loop for devices
 	    // ----------------------------
-	    
+	  
 	    // Get and print device information
-	    err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, 0, NULL, &string_size);
-	    if(err != CL_SUCCESS)
+	  err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, 0, NULL, &string_size);
+	  if(err != CL_SUCCESS)
 	    {
-		fprintf(stderr, "Failed to get device INFO!\n");
+	      fprintf(stderr, "Failed to get device INFO!\n");
 	    }
-	    // Allocate a string to store device's name
-	    device_name = malloc(string_size*sizeof(char));
-	    err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, string_size, device_name, NULL);
-	    printf("Found the following device(s) for platform %ld:\n --- Device name: %s\n", i, device_name);
-	    free(device_name);
+	  // Allocate a string to store device's name
+	  device_name = malloc(string_size*sizeof(char));
+	  err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, string_size, device_name, NULL);
+	  printf("Found the following device(s) for platform %ld:\n --- Device name: %s\n", i, device_name);
+	  free(device_name);
 	
-	    // ------------------------------------------------------------------------------------
-	    // Get device type information
-	    //
-	    // Important: cl_device_type is an enumeration set. The only way to print the type
-	    // is coding the list inside the function
-	    // One way is to compare bitwase: if (myargument & CL_DEVICE_TYPE_GPU)
-	    err = clGetDeviceInfo(device_id[i], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
-	    if(err != CL_SUCCESS)
+	  // ------------------------------------------------------------------------------------
+	  // Get device type information
+	  //
+	  // Important: cl_device_type is an enumeration set. The only way to print the type
+	  // is coding the list inside the function
+	  // One way is to compare bitwase: if (myargument & CL_DEVICE_TYPE_GPU)
+	  err = clGetDeviceInfo(device_id[i], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
+	  if(err != CL_SUCCESS)
 	    {
-		fprintf(stderr, "Failed to get device INFO!\n");
+	      fprintf(stderr, "Failed to get device INFO!\n");
 	    }
-	    if(device_type & CL_DEVICE_TYPE_GPU) strcpy(str,"GPU");
-	    else if(device_type & CL_DEVICE_TYPE_CPU) {
-		strcpy(str,"CPU");
-		CPU_plat = i;
-		CPU_device = j;
-	    }
-	    else if(device_type & CL_DEVICE_TYPE_ACCELERATOR) strcpy(str,"ACCELERATOR");
-	    else if(device_type & CL_DEVICE_TYPE_DEFAULT) strcpy(str,"DEFAULT");
-	    else strcpy(str, "---");
-	
-	    printf(" --- Device type: %s\n\n", str);
-	    j++;
+	  if(device_type & CL_DEVICE_TYPE_GPU) strcpy(str,"GPU");
+	  else if(device_type & CL_DEVICE_TYPE_CPU) {
+	    strcpy(str,"CPU");
+	    CPU_plat = i;
+	    CPU_device = j;
+	  }
+	  else if(device_type & CL_DEVICE_TYPE_ACCELERATOR) strcpy(str,"ACCELERATOR");
+	  else if(device_type & CL_DEVICE_TYPE_DEFAULT) strcpy(str,"DEFAULT");
+	  else strcpy(str, "---");
+	  
+	  printf(" --- Device type: %s\n\n", str);
+	  j++;
 	}
-	i++;
+      i++;
     }
     free(id_plat);
-
+    
     // With all platforms and devices, create a context for the CPU
     printf("My chosen platform is %d and chosen device is %d\n", CPU_plat, CPU_device);
     
@@ -188,12 +190,7 @@ int main(int argc , char* argv[])
     cl_kernel my_kernel;
     my_kernel = clCreateKernel(my_program, "mc", NULL);
     
-    // Create a buffer with data to my kernel (I'm not using it to write, only to get
-    // the values of the kernel)
-    cl_mem my_buffer;
-    my_buffer = clCreateBuffer(my_context, CL_MEM_READ_ONLY, 2*sizeof(int), NULL, NULL); 
-
-    int data[SIZE];
+    cl_int data[SIZE];
     for(int c=0; c<SIZE; c++)
 	data[c]=99;
 
@@ -202,14 +199,19 @@ int main(int argc , char* argv[])
 	printf("%d ", data[c]);
     printf("\n");
     
+    // Create a buffer with data to my kernel (I'm not using it to write, only to get
+    // the values of the kernel)
+    cl_mem my_buffer;
+    my_buffer = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_int), NULL, NULL); 
+
     // Enqueue and execute the kernel
-    clEnqueueWriteBuffer(my_queue, my_buffer, CL_FALSE, 0, SIZE*sizeof(int), &data, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, my_buffer, CL_FALSE, 0, SIZE*sizeof(cl_int), &data, 0, NULL, NULL);
     clSetKernelArg(my_kernel, 0, sizeof(my_buffer), &my_buffer);
 
     size_t global_dim[] = {SIZE, 1, 1}; // Quantas dimensoes? 
     clEnqueueNDRangeKernel(my_queue, my_kernel, SIZE, NULL, global_dim, NULL, 0, NULL, NULL);
 
-    clEnqueueReadBuffer(my_queue, my_buffer, CL_FALSE, 0, sizeof(cl_int)*SIZE, &data, 0, NULL, NULL);
+    clEnqueueReadBuffer(my_queue, my_buffer, CL_FALSE, 0, SIZE*sizeof(cl_int), &data, 0, NULL, NULL);
 
     clFinish(my_queue);
 
