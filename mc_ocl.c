@@ -29,6 +29,10 @@
 
 #include<CL/cl.h>
 
+// This file is generated trought the python2 script clext.py
+// This script is made available py WanghongLin at github.
+// ALL RIGHTS RESERVED TO THE AUTHOR
+#include"clext.h"
 
 
 // Using double drand48(void) to generate
@@ -157,7 +161,7 @@ int main(int argc , char* argv[])
     printf("My GPU platform is %d and chosen device is %d\n", GPU_plat, GPU_device);
 
     // When I know who is who, get the device I want
-    //    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_ALL, GPU_device, &device_id, NULL);
+//    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_ALL, GPU_device, &device_id, NULL);
     err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_ALL, CPU_device, &device_id, NULL);
     if(err != CL_SUCCESS)
       {
@@ -169,7 +173,7 @@ int main(int argc , char* argv[])
     my_context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
     if(err != CL_SUCCESS)
     {
-      printf(" ---- Erro! %d\n", err);
+	printf(" ---- CL Error: %s\n", clGetErrorString(err));
       fprintf(stderr, "Failed to get CONTEXT! %s\n");
 	return(errno);
     }
