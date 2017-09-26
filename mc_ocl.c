@@ -65,9 +65,9 @@ int main(int argc , char* argv[])
     {
 	fprintf(stderr, "Failed to get number of CL platforms!\n");
     }
-    printf("Number of OpenCL platforms found: %d\n", n_plat);
+    printf("Number of OpenCL platforms found: %d\n\n", n_plat);
 
-    cl_device_id* device_id;
+    cl_device_id device_id;
     size_t string_size;
     cl_uint n_devices;
     char* device_name;
@@ -77,43 +77,46 @@ int main(int argc , char* argv[])
     // Hold platform number and device number of CPU
     int CPU_plat = -1;
     int CPU_device = -1;
+    int GPU_plat = -1;
+    int GPU_device = -1;
     
     // Loop trough all platforms to find all devices
     i = 0;
     while(i<n_plat)
     {
       // Like platforms, the first call asks the number of devices
-      //err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 0, NULL, &n_devices);
-      err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, 1, &device_id[i], NULL);
-      n_devices = 1;
+      err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 0, NULL, &n_devices);
+
       if(err != CL_SUCCESS)
 	{
 	  fprintf(stderr, "Failed to get the number of devices!\n");
 	}
-      device_id = malloc(n_devices*sizeof(cl_device_id));
+      printf("Platform %d has %d devices.\n", i, n_devices);
       
       uint j=0;
       while(j<n_devices)
 	{
+	  device_id = malloc(sizeof(cl_device_id));
+      
 	  // make string empty
-	  err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 1, &device_id[i], NULL);
+	  err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, n_devices, &device_id, NULL);
 	  if(err != CL_SUCCESS)
 	    {
 	      fprintf(stderr, "Failed to get device ID!\n");
 	    }
-	    // ----------------------------
-	    // Must have a loop for devices
-	    // ----------------------------
+	  // ----------------------------
+	  // Must have a loop for devices
+	  // ----------------------------
 	  
-	    // Get and print device information
-	  err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, 0, NULL, &string_size);
+	  // Get and print device information
+	  err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, 0, NULL, &string_size);
 	  if(err != CL_SUCCESS)
 	    {
 	      fprintf(stderr, "Failed to get device INFO!\n");
 	    }
 	  // Allocate a string to store device's name
 	  device_name = malloc(string_size*sizeof(char));
-	  err = clGetDeviceInfo(device_id[i], CL_DEVICE_NAME, string_size, device_name, NULL);
+	  err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, string_size, device_name, NULL);
 	  printf("Found the following device(s) for platform %ld:\n --- Device name: %s\n", i, device_name);
 	  free(device_name);
 	
@@ -122,13 +125,17 @@ int main(int argc , char* argv[])
 	  //
 	  // Important: cl_device_type is an enumeration set. The only way to print the type
 	  // is coding the list inside the function
-	  // One way is to compare bitwase: if (myargument & CL_DEVICE_TYPE_GPU)
-	  err = clGetDeviceInfo(device_id[i], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
+	  // One way is to compare bitwise: if (myargument & CL_DEVICE_TYPE_GPU)
+	  err = clGetDeviceInfo(device_id, CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
 	  if(err != CL_SUCCESS)
 	    {
 	      fprintf(stderr, "Failed to get device INFO!\n");
 	    }
-	  if(device_type & CL_DEVICE_TYPE_GPU) strcpy(str,"GPU");
+	  if(device_type & CL_DEVICE_TYPE_GPU) {
+	    strcpy(str,"GPU");
+	    GPU_plat = i;
+	    GPU_device = j;
+	  }
 	  else if(device_type & CL_DEVICE_TYPE_CPU) {
 	    strcpy(str,"CPU");
 	    CPU_plat = i;
@@ -146,20 +153,31 @@ int main(int argc , char* argv[])
     free(id_plat);
     
     // With all platforms and devices, create a context for the CPU
-    printf("My chosen platform is %d and chosen device is %d\n", CPU_plat, CPU_device);
+    printf("My CPU platform is %d and chosen device is %d\n", CPU_plat, CPU_device);
+    printf("My GPU platform is %d and chosen device is %d\n", GPU_plat, GPU_device);
+
+    // When I know who is who, get the device I want
+    //    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_ALL, GPU_device, &device_id, NULL);
+    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_ALL, CPU_device, &device_id, NULL);
+    if(err != CL_SUCCESS)
+      {
+	fprintf(stderr, "Failed to get device ID!\n");
+      }
+    
     
     cl_context my_context;
-    my_context = clCreateContext(NULL, 1, &device_id[CPU_device], NULL, NULL, &err);
+    my_context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
     if(err != CL_SUCCESS)
     {
-	fprintf(stderr, "Failed to get CONTEXT!\n");
+      printf(" ---- Erro! %d\n", err);
+      fprintf(stderr, "Failed to get CONTEXT! %s\n");
 	return(errno);
     }
     
     size_t deviceBufferSize = -1;
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, 0, NULL, &deviceBufferSize);
     printf("\n --- deviceBufferSize is: %d\n", deviceBufferSize);
-    err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id[CPU_device], NULL);
+    err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id, NULL);
     
     if(err != CL_SUCCESS)
     {
@@ -170,7 +188,7 @@ int main(int argc , char* argv[])
     // Must create a clCommandQueue
     cl_command_queue my_queue;
     //  my_queue = clCreateCommandQueue(my_context, device_id[CPU_device], 0, NULL); Deprecated!
-    my_queue = clCreateCommandQueueWithProperties(my_context, device_id[CPU_device], 0, NULL);
+    my_queue = clCreateCommandQueueWithProperties(my_context, device_id, 0, NULL);
     if(err != CL_SUCCESS)
     {
 	fprintf(stderr, "Failed to create CL COMMAND QUEUE!\n");
