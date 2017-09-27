@@ -70,16 +70,27 @@ int main(int argc , char* argv[])
     // Before checking devices, must check platforms and devices
     // for each platform.
     err = clGetPlatformIDs(0, NULL, &n_plat);
+    if(err != CL_SUCCESS)
+    {
+      fprintf(stderr, "Failed to get number of CL platforms!\n");
+    }
     
     id_plat = malloc(n_plat*sizeof(cl_int));
     err = clGetPlatformIDs(n_plat, id_plat, NULL);
-
     if(err != CL_SUCCESS)
     {
-	fprintf(stderr, "Failed to get number of CL platforms!\n");
+      printf(" ---- CL Error: %s\n", clGetErrorString(err));
     }
-    printf("Number of OpenCL platforms found: %d\n\n", n_plat);
 
+    printf("Number of OpenCL platforms found: %d\n\n", n_plat);
+    for(int z=0; z<n_plat; z++)
+    {
+      char strname[128]="";
+      clGetPlatformInfo(id_plat[z], CL_PLATFORM_NAME, 128*sizeof(char), strname, NULL);
+      printf(" --- platform %d is %s\n", z, strname);
+    }
+    printf("\n");
+    
     cl_device_id device_id;
     size_t string_size;
     cl_uint n_devices;
@@ -104,13 +115,11 @@ int main(int argc , char* argv[])
 	{
 	  fprintf(stderr, "Failed to get the number of devices!\n");
 	}
-      printf("Platform %d has %d devices.\n", i, n_devices);
+      printf("Platform %ld has %d devices.\n", i, n_devices);
       
       uint j=0;
       while(j<n_devices)
 	{
-//	  device_id = malloc(sizeof(cl_device_id));
-      
 	  // make string empty
 	  err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, n_devices, &device_id, NULL);
 	  if(err != CL_SUCCESS)
@@ -169,27 +178,29 @@ int main(int argc , char* argv[])
     printf("My CPU platform is %d and chosen device is %d\n", CPU_plat, CPU_device);
     printf("My GPU platform is %d and chosen device is %d\n", GPU_plat, GPU_device);
 
+    cl_device_id new_device;
+    
     // When I know who is who, get the device I want
-    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_ALL, 1, &device_id, NULL);
+    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_ALL, 1, &new_device, NULL);
 
     if(err != CL_SUCCESS)
       {
-	  printf(" ---- CL Error: %s\n", clGetErrorString(err));
+	printf(" ---- CL Error: %s\n", clGetErrorString(err));
+	exit(0);
       }
     
     
     cl_context my_context;
-    my_context = clCreateContext(NULL, 1, &device_id, NULL, NULL, &err);
+    my_context = clCreateContext(NULL, 1, &new_device, NULL, NULL, &err);
     if(err != CL_SUCCESS)
     {
 	printf(" ---- CL Error: %s\n", clGetErrorString(err));
-	fprintf(stderr, "Failed to get CONTEXT! %s\n");
 	return(errno);
     }
     
     size_t deviceBufferSize = -1;
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, 0, NULL, &deviceBufferSize);
-    printf("\n --- deviceBufferSize is: %d\n", deviceBufferSize);
+    printf("\n --- deviceBufferSize is: %ld\n", deviceBufferSize);
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id, NULL);
     
     if(err != CL_SUCCESS)
