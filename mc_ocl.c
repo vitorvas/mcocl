@@ -34,6 +34,15 @@
 // ALL RIGHTS RESERVED TO THE AUTHOR
 #include"clext.h"
 
+// Typedefs suggested by AJ Guillon to avoid little problems
+//typedef char             int8_t;
+typedef unsigned char   uint8_t;
+typedef short           int16_t;
+typedef unsigned short uint16_t;
+typedef int             int32_t;
+typedef unsigned int   uint32_t;
+typedef long            int64_t;
+typedef unsigned long  uint64_t;
 
 // Using double drand48(void) to generate
 // random numbers (altough it's being called in a way
@@ -100,13 +109,13 @@ int main(int argc , char* argv[])
       uint j=0;
       while(j<n_devices)
 	{
-	  device_id = malloc(sizeof(cl_device_id));
+//	  device_id = malloc(sizeof(cl_device_id));
       
 	  // make string empty
 	  err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, n_devices, &device_id, NULL);
 	  if(err != CL_SUCCESS)
 	    {
-	      fprintf(stderr, "Failed to get device ID!\n");
+	      fprintf(stderr, "Failed to get device ID1!\n");
 	    }
 	  // ----------------------------
 	  // Must have a loop for devices
@@ -161,11 +170,11 @@ int main(int argc , char* argv[])
     printf("My GPU platform is %d and chosen device is %d\n", GPU_plat, GPU_device);
 
     // When I know who is who, get the device I want
-//    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_ALL, GPU_device, &device_id, NULL);
-    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_ALL, CPU_device, &device_id, NULL);
+    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_ALL, 1, &device_id, NULL);
+
     if(err != CL_SUCCESS)
       {
-	fprintf(stderr, "Failed to get device ID!\n");
+	  printf(" ---- CL Error: %s\n", clGetErrorString(err));
       }
     
     
@@ -174,7 +183,7 @@ int main(int argc , char* argv[])
     if(err != CL_SUCCESS)
     {
 	printf(" ---- CL Error: %s\n", clGetErrorString(err));
-      fprintf(stderr, "Failed to get CONTEXT! %s\n");
+	fprintf(stderr, "Failed to get CONTEXT! %s\n");
 	return(errno);
     }
     
@@ -218,7 +227,7 @@ int main(int argc , char* argv[])
     
     cl_int data[SIZE];
     for(int c=0; c<SIZE; c++)
-	data[c]=99;
+	data[c]=-1;
 
     printf("\n --- BEFORE: ");
     for(int c=0; c<SIZE; c++)
@@ -292,7 +301,5 @@ int main(int argc , char* argv[])
 
     printf("For %ld tries pi is %.6f\n", num, pi);
 
-    free(device_id);
-    
     return 0;
 }
