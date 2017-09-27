@@ -173,14 +173,14 @@ int main(int argc , char* argv[])
       i++;
     }
     free(id_plat);
-    
-    // With all platforms and devices, create a context for the CPU
-    printf("My CPU platform is %d and chosen device is %d\n", CPU_plat, CPU_device);
-    printf("My GPU platform is %d and chosen device is %d\n", GPU_plat, GPU_device);
 
+    // Give a new device to avoid using the stored one in case of problem calling
+    // the clGetDeviceIds function. This must be corrected later.
     cl_device_id new_device;
     
     // When I know who is who, get the device I want
+    // OBS: intermitent error in CAPRARA when using GPU. Sometimes I get SEGFAULT,
+    // sometimes it runs (without filling my data vector).
     err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_ALL, 1, &new_device, NULL);
 
     if(err != CL_SUCCESS)
