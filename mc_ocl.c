@@ -106,8 +106,12 @@ int main(int argc , char* argv[])
     
     // Loop trough all platforms to find all devices
     i = 0;
-    while(i<n_plat)
+    int outer_n_plat = n_plat;
+    while(i<outer_n_plat)
     {
+      printf(" ----------- n_plat= %d\n\n", n_plat);
+      printf(" ----------- outer_n_plat= %d\n\n", outer_n_plat);
+      
       // Like platforms, the first call asks the number of devices
       err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 0, NULL, &n_devices);
 
@@ -172,7 +176,7 @@ int main(int argc , char* argv[])
 	}
       i++;
     }
-    free(id_plat);
+    //    free(id_plat);
 
     // Give a new device to avoid using the stored one in case of problem calling
     // the clGetDeviceIds function. This must be corrected later.
@@ -181,7 +185,7 @@ int main(int argc , char* argv[])
     // When I know who is who, get the device I want
     // OBS: intermitent error in CAPRARA when using GPU. Sometimes I get SEGFAULT,
     // sometimes it runs (without filling my data vector).
-    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_ALL, 1, &new_device, NULL);
+    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_ALL, 1, &new_device, NULL);
 
     if(err != CL_SUCCESS)
       {
@@ -200,6 +204,11 @@ int main(int argc , char* argv[])
     
     size_t deviceBufferSize = -1;
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, 0, NULL, &deviceBufferSize);
+    if(err != CL_SUCCESS)
+    {
+	printf(" ---- CL Error: %s\n", clGetErrorString(err));
+	return(errno);
+    }
     printf("\n --- deviceBufferSize is: %ld\n", deviceBufferSize);
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id, NULL);
     
