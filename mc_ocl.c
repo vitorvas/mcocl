@@ -109,9 +109,6 @@ int main(int argc , char* argv[])
     int outer_n_plat = n_plat;
     while(i<outer_n_plat)
     {
-      printf(" ----------- n_plat= %d\n\n", n_plat);
-      printf(" ----------- outer_n_plat= %d\n\n", outer_n_plat);
-      
       // Like platforms, the first call asks the number of devices
       err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, 0, NULL, &n_devices);
 
@@ -124,27 +121,34 @@ int main(int argc , char* argv[])
       uint j=0;
       while(j<n_devices)
 	{
+	  cl_device_id devid[n_devices];
+
 	  // make string empty
-	  err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, n_devices, &device_id, NULL);
+	  err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, n_devices, devid, NULL);
+
 	  if(err != CL_SUCCESS)
-	    {
-	      fprintf(stderr, "Failed to get device ID1!\n");
-	    }
+	  {
+	    fprintf(stderr, "Failed to get device ID1!\n");
+	  }
 	  // ----------------------------
 	  // Must have a loop for devices
 	  // ----------------------------
 	  
 	  // Get and print device information
-	  err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, 0, NULL, &string_size);
+	  err = clGetDeviceInfo(devid[j], CL_DEVICE_NAME, 0, NULL, &string_size);
+	  //	  printf("String size of device name is %d.\n", string_size);
 	  if(err != CL_SUCCESS)
 	    {
 	      fprintf(stderr, "Failed to get device INFO!\n");
 	    }
 	  // Allocate a string to store device's name
 	  device_name = malloc(string_size*sizeof(char));
-	  err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, string_size, device_name, NULL);
-	  printf("Found the following device(s) for platform %ld:\n --- Device name: %s\n", i, device_name);
+	  err = clGetDeviceInfo(devid[j], CL_DEVICE_NAME, string_size, device_name, NULL);
+	  printf("Found device %d for platform %ld:\n --- Device name: %s\n", j, i, device_name);
+	  strcpy(device_name, "");
 	  free(device_name);
+
+
 	
 	  // ------------------------------------------------------------------------------------
 	  // Get device type information
@@ -152,7 +156,7 @@ int main(int argc , char* argv[])
 	  // Important: cl_device_type is an enumeration set. The only way to print the type
 	  // is coding the list inside the function
 	  // One way is to compare bitwise: if (myargument & CL_DEVICE_TYPE_GPU)
-	  err = clGetDeviceInfo(device_id, CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
+	  err = clGetDeviceInfo(devid[j], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
 	  if(err != CL_SUCCESS)
 	    {
 	      fprintf(stderr, "Failed to get device INFO!\n");
@@ -176,16 +180,16 @@ int main(int argc , char* argv[])
 	}
       i++;
     }
-    //    free(id_plat);
 
     // Give a new device to avoid using the stored one in case of problem calling
     // the clGetDeviceIds function. This must be corrected later.
-    cl_device_id new_device;
+    cl_device_id new_device[2];
     
     // When I know who is who, get the device I want
     // OBS: intermitent error in CAPRARA when using GPU. Sometimes I get SEGFAULT,
     // sometimes it runs (without filling my data vector).
-    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_ALL, 1, &new_device, NULL);
+    //    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_ALL, 1, &new_device, NULL);
+    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_CPU, 1, new_device, NULL);
 
     if(err != CL_SUCCESS)
       {
@@ -195,7 +199,7 @@ int main(int argc , char* argv[])
     
     
     cl_context my_context;
-    my_context = clCreateContext(NULL, 1, &new_device, NULL, NULL, &err);
+    my_context = clCreateContext(NULL, 1, &new_device[0], NULL, NULL, &err);
     if(err != CL_SUCCESS)
     {
 	printf(" ---- CL Error: %s\n", clGetErrorString(err));
@@ -204,12 +208,13 @@ int main(int argc , char* argv[])
     
     size_t deviceBufferSize = -1;
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, 0, NULL, &deviceBufferSize);
+    // Asking for the number of devices, which returns a cl_uint, i.e., 8 bytes.
     if(err != CL_SUCCESS)
     {
 	printf(" ---- CL Error: %s\n", clGetErrorString(err));
 	return(errno);
     }
-    printf("\n --- deviceBufferSize is: %ld\n", deviceBufferSize);
+
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id, NULL);
     
     if(err != CL_SUCCESS)
