@@ -1,0 +1,235 @@
+Number of platforms                               2
+  Platform Name                                   AMD Accelerated Parallel Processing
+  Platform Vendor                                 Advanced Micro Devices, Inc.
+  Platform Version                                OpenCL 2.0 AMD-APP (1800.11)
+  Platform Profile                                FULL_PROFILE
+  Platform Extensions                             cl_khr_icd cl_amd_event_callback cl_amd_offline_devices 
+  Platform Extensions function suffix             AMD
+
+  Platform Name                                   Clover
+  Platform Vendor                                 Mesa
+  Platform Version                                OpenCL 1.1 Mesa 17.0.5
+  Platform Profile                                FULL_PROFILE
+  Platform Extensions                             cl_khr_icd
+  Platform Extensions function suffix             MESA
+
+  Platform Name                                   AMD Accelerated Parallel Processing
+Number of devices                                 1
+  Device Name                                     AMD A6-3420M APU with Radeon(tm) HD Graphics
+  Device Vendor                                   AuthenticAMD
+  Device Vendor ID                                0x1002
+  Device Version                                  OpenCL 1.2 AMD-APP (1800.11)
+  Driver Version                                  1800.11 (sse2)
+  Device OpenCL C Version                         OpenCL C 1.2 
+  Device Type                                     CPU
+  Device Available                                Yes
+  Device Profile                                  FULL_PROFILE
+  Device Board Name (AMD)                         
+  Device Topology (AMD)                           (n/a)
+  Max compute units                               4
+  Max clock frequency                             1100MHz
+  Device Partition                                (core, cl_ext_device_fission)
+    Max number of sub-devices                     4
+    Supported partition types                     equally, by counts, by affinity domain
+    Supported affinity domains                    L2 cache, L1 cache, next partitionable
+    Supported partition types (ext)               equally, by counts, by affinity domain
+    Supported affinity domains (ext)              L2 cache, L1 cache, next fissionable
+  Max work item dimensions                        3
+  Max work item sizes                             1024x1024x1024
+  Max work group size                             1024
+  Compiler Available                              Yes
+  Linker Available                                Yes
+  Preferred work group size multiple              1
+  Preferred / native vector sizes                 
+    char                                                16 / 16      
+    short                                                8 / 8       
+    int                                                  4 / 4       
+    long                                                 2 / 2       
+    half                                                 2 / 2        (n/a)
+    float                                                4 / 4       
+    double                                               2 / 2        (cl_khr_fp64)
+  Half-precision Floating-point support           (n/a)
+  Single-precision Floating-point support         (core)
+    Denormals                                     Yes
+    Infinity and NANs                             Yes
+    Round to nearest                              Yes
+    Round to zero                                 Yes
+    Round to infinity                             Yes
+    IEEE754-2008 fused multiply-add               Yes
+    Support is emulated in software               No
+    Correctly-rounded divide and sqrt operations  Yes
+  Double-precision Floating-point support         (cl_khr_fp64)
+    Denormals                                     Yes
+    Infinity and NANs                             Yes
+    Round to nearest                              Yes
+    Round to zero                                 Yes
+    Round to infinity                             Yes
+    IEEE754-2008 fused multiply-add               Yes
+    Support is emulated in software               No
+    Correctly-rounded divide and sqrt operations  No
+  Address bits                                    64, Little-Endian
+  Global memory size                              5707350016 (5.315GiB)
+  Error Correction support                        No
+  Max memory allocation                           2147483648 (2GiB)
+  Unified memory for Host and Device              Yes
+  Minimum alignment for any data type             128 bytes
+  Alignment of base address                       1024 bits (128 bytes)
+  Global Memory cache type                        Read/Write
+  Global Memory cache size                        65536 (64KiB)
+  Global Memory cache line size                   64 bytes
+  Image support                                   Yes
+    Max number of samplers per kernel             16
+    Max size for 1D images from buffer            65536 pixels
+    Max 1D or 2D image array size                 2048 images
+    Max 2D image size                             8192x8192 pixels
+    Max 3D image size                             2048x2048x2048 pixels
+    Max number of read image args                 128
+    Max number of write image args                64
+  Local memory type                               Global
+  Local memory size                               32768 (32KiB)
+  Max constant buffer size                        65536 (64KiB)
+  Max number of constant args                     8
+  Max size of kernel argument                     4096 (4KiB)
+  Queue properties                                
+    Out-of-order execution                        No
+    Profiling                                     Yes
+  Prefer user sync for interop                    Yes
+  Profiling timer resolution                      1ns
+  Profiling timer offset since Epoch (AMD)        1506725939749430687ns (Fri Sep 29 19:58:59 2017)
+  Execution capabilities                          
+    Run OpenCL kernels                            Yes
+    Run native kernels                            Yes
+    SPIR versions                                 1.2
+  printf() buffer size                            65536 (64KiB)
+  Built-in kernels                                
+  Device Extensions                               cl_khr_fp64 cl_amd_fp64 cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_int64_base_atomics cl_khr_int64_extended_atomics cl_khr_3d_image_writes cl_khr_byte_addressable_store cl_khr_gl_sharing cl_ext_device_fission cl_amd_device_attribute_query cl_amd_vec3 cl_amd_printf cl_amd_media_ops cl_amd_media_ops2 cl_amd_popcnt cl_khr_spir cl_khr_gl_event 
+
+  Platform Name                                   Clover
+Number of devices                                 2
+  Device Name                                     AMD SUMO (DRM 2.49.0 / 4.11.12-200.fc25.x86_64, LLVM 3.9.1)
+  Device Vendor                                   AMD
+  Device Vendor ID                                0x1002
+  Device Version                                  OpenCL 1.1 Mesa 17.0.5
+  Driver Version                                  17.0.5
+  Device OpenCL C Version                         OpenCL C 1.1 
+  Device Type                                     GPU
+  Device Available                                Yes
+  Device Profile                                  FULL_PROFILE
+  Max compute units                               3
+  Max clock frequency                             0MHz
+  Max work item dimensions                        3
+  Max work item sizes                             256x256x256
+  Max work group size                             256
+  Compiler Available                              Yes
+  Preferred work group size multiple              64
+  Preferred / native vector sizes                 
+    char                                                16 / 16      
+    short                                                8 / 8       
+    int                                                  4 / 4       
+    long                                                 2 / 2       
+    half                                                 0 / 0        (n/a)
+    float                                                4 / 4       
+    double                                               0 / 0        (n/a)
+  Half-precision Floating-point support           (n/a)
+  Single-precision Floating-point support         (core)
+    Denormals                                     No
+    Infinity and NANs                             Yes
+    Round to nearest                              Yes
+    Round to zero                                 No
+    Round to infinity                             No
+    IEEE754-2008 fused multiply-add               No
+    Support is emulated in software               No
+    Correctly-rounded divide and sqrt operations  No
+  Double-precision Floating-point support         (n/a)
+  Address bits                                    32, Little-Endian
+  Global memory size                              1071505408 (1022MiB)
+  Error Correction support                        No
+  Max memory allocation                           750053785 (715.3MiB)
+  Unified memory for Host and Device              Yes
+  Minimum alignment for any data type             128 bytes
+  Alignment of base address                       1024 bits (128 bytes)
+  Global Memory cache type                        None
+  Image support                                   No
+  Local memory type                               Local
+  Local memory size                               32768 (32KiB)
+  Max constant buffer size                        750053785 (715.3MiB)
+  Max number of constant args                     13
+  Max size of kernel argument                     1024
+  Queue properties                                
+    Out-of-order execution                        No
+    Profiling                                     Yes
+  Profiling timer resolution                      0ns
+  Execution capabilities                          
+    Run OpenCL kernels                            Yes
+    Run native kernels                            No
+  Device Extensions                               cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_byte_addressable_store
+
+  Device Name                                     AMD CAICOS (DRM 2.49.0 / 4.11.12-200.fc25.x86_64, LLVM 3.9.1)
+  Device Vendor                                   AMD
+  Device Vendor ID                                0x1002
+  Device Version                                  OpenCL 1.1 Mesa 17.0.5
+  Driver Version                                  17.0.5
+  Device OpenCL C Version                         OpenCL C 1.1 
+  Device Type                                     GPU
+  Device Available                                Yes
+  Device Profile                                  FULL_PROFILE
+  Max compute units                               2
+  Max clock frequency                             800MHz
+  Max work item dimensions                        3
+  Max work item sizes                             256x256x256
+  Max work group size                             256
+  Compiler Available                              Yes
+  Preferred work group size multiple              64
+  Preferred / native vector sizes                 
+    char                                                16 / 16      
+    short                                                8 / 8       
+    int                                                  4 / 4       
+    long                                                 2 / 2       
+    half                                                 0 / 0        (n/a)
+    float                                                4 / 4       
+    double                                               0 / 0        (n/a)
+  Half-precision Floating-point support           (n/a)
+  Single-precision Floating-point support         (core)
+    Denormals                                     No
+    Infinity and NANs                             Yes
+    Round to nearest                              Yes
+    Round to zero                                 No
+    Round to infinity                             No
+    IEEE754-2008 fused multiply-add               No
+    Support is emulated in software               No
+    Correctly-rounded divide and sqrt operations  No
+  Double-precision Floating-point support         (n/a)
+  Address bits                                    32, Little-Endian
+  Global memory size                              1073741824 (1024MiB)
+  Error Correction support                        No
+  Max memory allocation                           751619276 (716.8MiB)
+  Unified memory for Host and Device              Yes
+  Minimum alignment for any data type             128 bytes
+  Alignment of base address                       1024 bits (128 bytes)
+  Global Memory cache type                        None
+  Image support                                   No
+  Local memory type                               Local
+  Local memory size                               32768 (32KiB)
+  Max constant buffer size                        751619276 (716.8MiB)
+  Max number of constant args                     13
+  Max size of kernel argument                     1024
+  Queue properties                                
+    Out-of-order execution                        No
+    Profiling                                     Yes
+  Profiling timer resolution                      0ns
+  Execution capabilities                          
+    Run OpenCL kernels                            Yes
+    Run native kernels                            No
+  Device Extensions                               cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_byte_addressable_store
+
+NULL platform behavior
+  clGetPlatformInfo(NULL, CL_PLATFORM_NAME, ...)  No platform
+  clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, ...)   No platform
+  clCreateContext(NULL, ...) [default]            No platform
+  clCreateContext(NULL, ...) [other]              Success [AMD]
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_DEFAULT)  No platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_CPU)  No platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_GPU)  No platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_ACCELERATOR)  No platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_CUSTOM)  No platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_ALL)  No platform

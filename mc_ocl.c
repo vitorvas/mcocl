@@ -118,69 +118,72 @@ int main(int argc , char* argv[])
 	}
       printf("Platform %ld has %d devices.\n", i, n_devices);
       
+      cl_device_id devid[n_devices];
+      
+      // make string empty
+      err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, n_devices, devid, NULL);
+      
+      if(err != CL_SUCCESS)
+	{
+	  printf(" ---- CL Error: %s\n", clGetErrorString(err));
+	  exit(0);
+	}
+      
       uint j=0;
       while(j<n_devices)
-	{
-	  cl_device_id devid[n_devices];
-
-	  // make string empty
-	  err = clGetDeviceIDs(id_plat[i], CL_DEVICE_TYPE_ALL, n_devices, devid, NULL);
-
-	  if(err != CL_SUCCESS)
-	  {
-	    fprintf(stderr, "Failed to get device ID1!\n");
-	  }
-	  // ----------------------------
-	  // Must have a loop for devices
-	  // ----------------------------
-	  
-	  // Get and print device information
-	  err = clGetDeviceInfo(devid[j], CL_DEVICE_NAME, 0, NULL, &string_size);
-	  //	  printf("String size of device name is %d.\n", string_size);
-	  if(err != CL_SUCCESS)
-	    {
-	      fprintf(stderr, "Failed to get device INFO!\n");
-	    }
-	  // Allocate a string to store device's name
-	  device_name = malloc(string_size*sizeof(char));
-	  err = clGetDeviceInfo(devid[j], CL_DEVICE_NAME, string_size, device_name, NULL);
-	  printf("Found device %d for platform %ld:\n --- Device name: %s\n", j, i, device_name);
-	  strcpy(device_name, "");
-	  free(device_name);
-
-
+      {
+	// ----------------------------
+	// Must have a loop for devices
+	// ----------------------------
 	
-	  // ------------------------------------------------------------------------------------
-	  // Get device type information
-	  //
-	  // Important: cl_device_type is an enumeration set. The only way to print the type
-	  // is coding the list inside the function
-	  // One way is to compare bitwise: if (myargument & CL_DEVICE_TYPE_GPU)
-	  err = clGetDeviceInfo(devid[j], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
-	  if(err != CL_SUCCESS)
-	    {
-	      fprintf(stderr, "Failed to get device INFO!\n");
-	    }
-	  if(device_type & CL_DEVICE_TYPE_GPU) {
-	    strcpy(str,"GPU");
-	    GPU_plat = i;
-	    GPU_device = j;
-	  }
-	  else if(device_type & CL_DEVICE_TYPE_CPU) {
-	    strcpy(str,"CPU");
-	    CPU_plat = i;
-	    CPU_device = j;
-	  }
-	  else if(device_type & CL_DEVICE_TYPE_ACCELERATOR) strcpy(str,"ACCELERATOR");
-	  else if(device_type & CL_DEVICE_TYPE_DEFAULT) strcpy(str,"DEFAULT");
-	  else strcpy(str, "---");
-	  
-	  printf(" --- Device type: %s\n\n", str);
-	  j++;
+	// Get and print device information
+	err = clGetDeviceInfo(devid[j], CL_DEVICE_NAME, 0, NULL, &string_size);
+	//	  printf("String size of device name is %d.\n", string_size);
+	if(err != CL_SUCCESS)
+	{
+	  printf(" ---- CL Error: %s\n", clGetErrorString(err));
+	  exit(0);
 	}
+	// Allocate a string to store device's name
+	device_name = malloc(string_size*sizeof(char));
+	err = clGetDeviceInfo(devid[j], CL_DEVICE_NAME, string_size, device_name, NULL);
+	printf("Found device %d for platform %ld:\n --- Device name: %s\n", j, i, device_name);
+	strcpy(device_name, "");
+	free(device_name);
+	
+	
+	
+	// ------------------------------------------------------------------------------------
+	// Get device type information
+	//
+	// Important: cl_device_type is an enumeration set. The only way to print the type
+	// is coding the list inside the function
+	// One way is to compare bitwise: if (myargument & CL_DEVICE_TYPE_GPU)
+	err = clGetDeviceInfo(devid[j], CL_DEVICE_TYPE, sizeof(device_type), &device_type, NULL);
+	if(err != CL_SUCCESS)
+	{
+	  fprintf(stderr, "Failed to get device INFO!\n");
+	}
+	if(device_type & CL_DEVICE_TYPE_GPU) {
+	  strcpy(str,"GPU");
+	  GPU_plat = i;
+	  GPU_device = j;
+	}
+	else if(device_type & CL_DEVICE_TYPE_CPU) {
+	  strcpy(str,"CPU");
+	  CPU_plat = i;
+	  CPU_device = j;
+	}
+	else if(device_type & CL_DEVICE_TYPE_ACCELERATOR) strcpy(str,"ACCELERATOR");
+	else if(device_type & CL_DEVICE_TYPE_DEFAULT) strcpy(str,"DEFAULT");
+	else strcpy(str, "---");
+	
+	printf(" --- Device type: %s\n\n", str);
+	j++;
+      }
       i++;
     }
-
+    
     // Give a new device to avoid using the stored one in case of problem calling
     // the clGetDeviceIds function. This must be corrected later.
     cl_device_id new_device[2];
@@ -188,8 +191,8 @@ int main(int argc , char* argv[])
     // When I know who is who, get the device I want
     // OBS: intermitent error in CAPRARA when using GPU. Sometimes I get SEGFAULT,
     // sometimes it runs (without filling my data vector).
-    //    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_ALL, 1, &new_device, NULL);
-    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_CPU, 1, new_device, NULL);
+    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_GPU, 1, new_device, NULL);
+    // err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_CPU, 1, new_device, NULL);
 
     if(err != CL_SUCCESS)
       {
@@ -245,8 +248,17 @@ int main(int argc , char* argv[])
     };
     cl_program my_program;
     my_program = clCreateProgramWithSource(my_context, 1, (const char**)&source, NULL, NULL);
-    clBuildProgram(my_program, 0, NULL, NULL, NULL, NULL);
+    err = clBuildProgram(my_program, 0, NULL, NULL, NULL, NULL);
 
+    // Dica do developer central
+    if(err)
+    {
+      char log[10240] = "";
+      err = clGetProgramBuildInfo(my_program, device_id, CL_PROGRAM_BUILD_LOG,
+				  sizeof(log), log, NULL);
+      printf("Program build log: \n%s\n\nOpenCL compilation fatal error. EXITING...\n", log);
+    }
+    
     cl_kernel my_kernel;
     my_kernel = clCreateKernel(my_program, "mc", NULL);
     
