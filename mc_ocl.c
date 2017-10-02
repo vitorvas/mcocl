@@ -14,7 +14,7 @@
 // check if points randomly* chosen to be inside
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
-# define SIZE 16 // Achei o erro! Estava no clEnqueueNDRangeKernel
+# define SIZE 32 // Achei o erro! Estava no clEnqueueNDRangeKernel
                 // O parâmetro que estava sendo passado estava como SIZE
                 // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
 
@@ -191,8 +191,8 @@ int main(int argc , char* argv[])
     // When I know who is who, get the device I want
     // OBS: intermitent error in CAPRARA when using GPU. Sometimes I get SEGFAULT,
     // sometimes it runs (without filling my data vector).
-    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_GPU, 1, new_device, NULL);
-    // err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_CPU, 1, new_device, NULL);
+    // err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_GPU, 1, new_device, NULL);
+    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_CPU, 1, new_device, NULL);
 
     if(err != CL_SUCCESS)
       {
@@ -240,12 +240,35 @@ int main(int argc , char* argv[])
     // This a dummy kernel only to test compilation and execution
     // Only one not used argument
     char * source = {
-	"__kernel void mc(__global int *data)\n"
+	"__kernel void test(__global float *data)\n"
 	"{\n"
 	"int id = get_global_id(0);\n"
 	"data[id] = id;\n"
+	"float x = (float)drand48();\n"
+	"float y = (float)drand48();\n"
+	"for(int i=0; i< 100000000; i++)\n"
+	"for(int j=0; j< 100000000; j++)\n"
+	"for(int z=0; z< 100000000; z++)\n"
+	"{ \n"
+	"{ \n"
+	"{ \n"
+	"data[id] = i*j;\n"
+	"}\n"
+	"}\n"
+	"}\n"
+	"data[id] = id;\n"
         "}\n"
     };
+
+    char * source2 = {
+      "__kernel void mc(__global float *x, _global float* y, \n"
+      "                  _global float* data, const unsigned int boundary)"
+      "{\n"
+      "int id = get_global_id(0);\n"
+      "__private float point = 0.5;\n"
+      "}\n"
+    };
+    
     cl_program my_program;
     my_program = clCreateProgramWithSource(my_context, 1, (const char**)&source, NULL, NULL);
     err = clBuildProgram(my_program, 0, NULL, NULL, NULL, NULL);
@@ -253,43 +276,57 @@ int main(int argc , char* argv[])
     // Dica do developer central
     if(err)
     {
+      printf(" ---- CL Error: %s\n", clGetErrorString(err));
+
       char log[10240] = "";
       err = clGetProgramBuildInfo(my_program, device_id, CL_PROGRAM_BUILD_LOG,
 				  sizeof(log), log, NULL);
-      printf("Program build log: \n%s\n\nOpenCL compilation fatal error. EXITING...\n", log);
+      printf("Program build log: \n%s\n\nOpenCL build fatal error. EXITING...\n", log);
+      exit(0);
     }
     
     cl_kernel my_kernel;
-    my_kernel = clCreateKernel(my_program, "mc", NULL);
-    
-    cl_int data[SIZE];
-    for(int c=0; c<SIZE; c++)
-	data[c]=-1;
+    my_kernel = clCreateKernel(my_program, "test", NULL);
 
+    cl_float xf[SIZE];
+    cl_float yf[SIZE];
+    for(int c=0; c<SIZE; c++)
+    {
+      xf[c]=drand48();
+      yf[c]=drand48();
+    }
+    
     printf("\n --- BEFORE: ");
     for(int c=0; c<SIZE; c++)
-	printf("%d ", data[c]);
+    {
+      printf("[%.2f,  ", xf[c]);
+      printf("%.2f] ", xf[c]);
+    }
     printf("\n");
     
     // Create a buffer with data to my kernel (I'm not using it to write, only to get
     // the values of the kernel)
-    cl_mem my_buffer;
-    my_buffer = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_int), NULL, NULL); 
+    cl_mem datax, datay, data;
+    datax = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
+    datay = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
+    data = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(cl_float), NULL, NULL); 
 
     // Enqueue and execute the kernel
-    clEnqueueWriteBuffer(my_queue, my_buffer, CL_FALSE, 0, SIZE*sizeof(cl_int), &data, 0, NULL, NULL);
-    clSetKernelArg(my_kernel, 0, sizeof(my_buffer), &my_buffer);
+    clEnqueueWriteBuffer(my_queue, datax, CL_FALSE, 0, SIZE*sizeof(cl_float), &datax, 0, NULL, NULL);
+    clSetKernelArg(my_kernel, 0, sizeof(datax), &datax);
 
-    size_t global_dim[] = {SIZE, 0, 0}; // Quantas dimensoes? 
-    clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, NULL, 0, NULL, NULL);
+    size_t global_dim[] = {SIZE, 0, 0}; // Quantas dimensoes?
+    size_t work_dim[] = {4096,0,0};
+    
+    clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, 0, 0, NULL, NULL);
 
-    clEnqueueReadBuffer(my_queue, my_buffer, CL_FALSE, 0, SIZE*sizeof(cl_int), &data, 0, NULL, NULL);
+    clEnqueueReadBuffer(my_queue, datax, CL_FALSE, 0, SIZE*sizeof(cl_float), &datax, 0, NULL, NULL);
 
     clFinish(my_queue);
 
     printf("\n --- AFTER: ");
     for(int c=0; c<SIZE; c++)
-	printf("%d ", data[c]);
+	printf("%.2f ", xf[c]);
     printf("\n");
     
     clReleaseCommandQueue(my_queue);
