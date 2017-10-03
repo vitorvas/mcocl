@@ -25,8 +25,9 @@
 #include<stdlib.h>
 #include<errno.h>
 #include<math.h>
-#include<string.h> //strcpy()
-#include<limits.h> // Try to use the maximum integer number to calculate pi
+#include<string.h>   //strcpy()
+#include<limits.h>   // Try to use the maximum integer number to calculate pi
+#include<sys/stat.h> // Para usar as estruturas de stat
 
 #include<CL/cl.h>
 
@@ -236,32 +237,23 @@ int main(int argc , char* argv[])
 	fprintf(stderr, "Failed to create CL COMMAND QUEUE!\n");
 	return(errno);
     }
-
-    // After the command queue, how to execute my kernel?
-    // This a dummy kernel only to test compilation and execution
-    // Only one not used argument
-    char * source = {
-	"__kernel void test(__global float *data)\n"
-	"{\n"
-	"int id = get_global_id(0);\n"
-	"data[id] = id;\n"
-	"float x = 1.1;\n"
-	"float y = 2.2;\n"
-	"data[id] = id*x*y;\n"
-        "}\n"
-    };
-
-    char * source2 = {
-      "__kernel void mc(__global float *x, _global float* y, \n"
-      "                  _global float* data, const unsigned int boundary)"
-      "{\n"
-      "int id = get_global_id(0);\n"
-      "__private float point = 0.5;\n"
-      "}\n"
-    };
     
+    // Create the compute program from the kernel source file
     cl_program my_program;
-    my_program = clCreateProgramWithSource(my_context, 1, (const char**)&source, NULL, NULL);
+    char *fileName = "kernels.cl";
+    FILE *fh = fopen(fileName, "r");
+    if(!fh) {
+        printf("Error: Failed to open file containing kernels. EXITING...\n");
+        return 0;
+    }
+    struct stat statbuf;
+    stat(fileName, &statbuf);
+    char *kernel = (char *) malloc(statbuf.st_size + 1);
+    fread(kernel, statbuf.st_size, 1, fh);
+    kernel[statbuf.st_size] = '\0';
+
+    // Kernels are now on the file kernels.cl
+    my_program = clCreateProgramWithSource(my_context, 1, (const char**)&kernel, NULL, NULL);
     err = clBuildProgram(my_program, 0, NULL, NULL, NULL, NULL);
 
     // Dica do developer central
