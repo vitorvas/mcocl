@@ -14,7 +14,7 @@
 // check if points randomly* chosen to be inside
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
-# define SIZE 16 // Achei o erro! Estava no clEnqueueNDRangeKernel
+# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
                 // O parâmetro que estava sendo passado estava como SIZE
                 // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
 
@@ -25,9 +25,10 @@
 #include<stdlib.h>
 #include<errno.h>
 #include<math.h>
-#include<string.h>   //strcpy()
+#include<string.h>   // strcpy()
 #include<limits.h>   // Try to use the maximum integer number to calculate pi
 #include<sys/stat.h> // Para usar as estruturas de stat
+#include<time.h>     // Measure the time of execution
 
 #include<CL/cl.h>
 
@@ -52,6 +53,9 @@ typedef unsigned long  uint64_t;
 
 int main(int argc , char* argv[])
 {
+  // To measure execution time
+    clock_t t;
+  
     long unsigned int num;
     long unsigned int i = 0;
     
@@ -254,8 +258,12 @@ int main(int argc , char* argv[])
 
     // Kernels are now on the file kernels.cl
     my_program = clCreateProgramWithSource(my_context, 1, (const char**)&kernel, NULL, NULL);
-    err = clBuildProgram(my_program, 0, NULL, NULL, NULL, NULL);
 
+    t = clock();
+    err = clBuildProgram(my_program, 0, NULL, NULL, NULL, NULL);
+    t = clock()-t;
+    printf(" --- Compiling OpenCL program time: %f\n", (double)t/CLOCKS_PER_SEC);
+    
     // Dica do developer central
     if(err)
     {
@@ -292,38 +300,47 @@ int main(int argc , char* argv[])
     
     // Create a buffer with data to my kernel (I'm not using it to write, only to get
     // the values of the kernel)
-    cl_mem bufferx, buffery, buffero;
+    cl_mem bufferx, buffery, buffero, bufferb;
+    cl_int bound = SIZE;
+    
     bufferx = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
     buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
     buffero = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(cl_float), NULL, NULL); 
-
+    bufferb = clCreateBuffer(my_context, CL_MEM_READ_ONLY, sizeof(cl_int), NULL, NULL);
+    
     // Enqueue and execute the kernel
     clEnqueueWriteBuffer(my_queue, bufferx, CL_FALSE, 0, SIZE*sizeof(cl_float), &xf, 0, NULL, NULL);
     clEnqueueWriteBuffer(my_queue, buffery, CL_FALSE, 0, SIZE*sizeof(cl_float), &yf, 0, NULL, NULL);
     clEnqueueWriteBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
-
-    clSetKernelArg(my_kernel, 0, sizeof(bufferx), &bufferx);
-    clSetKernelArg(my_kernel, 0, sizeof(buffery), &buffery);
-    clSetKernelArg(my_kernel, 0, sizeof(buffero), &buffero);
+    clEnqueueWriteBuffer(my_queue, bufferb, CL_FALSE, 0, sizeof(cl_int), &bound, 0, NULL, NULL);
+    
+    clSetKernelArg(my_kernel, 0, sizeof(cl_mem), &bufferx);
+    clSetKernelArg(my_kernel, 1, sizeof(cl_mem), &buffery);
+    clSetKernelArg(my_kernel, 2, sizeof(cl_mem), &buffero);
+    clSetKernelArg(my_kernel, 3, sizeof(cl_int), &bufferb);
     
     size_t global_dim[] = {SIZE, 0, 0}; // Quantas dimensoes?
-    size_t work_dim[] = {4096,0,0};
-    
+    size_t work_dim[] = {4096, 0, 0};
+
+    t = clock();
     clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, 0, 0, NULL, NULL);
 
     clEnqueueReadBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
 
     clFinish(my_queue);
-
+    t = clock() - t;
+    printf(" --- OpenCL launch time elapsed: %f\n", (double)t/CLOCKS_PER_SEC);
+    printf(" --- Size of work-group: %ld\n", SIZE);
+    
     /* printf("\n --- AFTER: "); */
     /* for(int c=0; c<SIZE; c++) */
-    /* 	printf("%.2f ", data[c]); */
+    /*   printf("%.2f ", data[c]); */
     /* printf("\n"); */
     
     clReleaseCommandQueue(my_queue);
     clReleaseContext(my_context);
 
-    printf("---------------------------------------------------------------- \n\n");
+    printf("----------------------------------------------------------------------------------------- \n\n");
     // If find a GPU, give preference to it.
     // Othewise, run in parallel in a CPU
     
@@ -339,12 +356,15 @@ int main(int argc , char* argv[])
     if (argc < 2) {
 //	fprintf(stderr, "Wrong number of arguments. Using the ULONG_MAX = %lu.\n", ULONG_MAX);
 //	num = ULONG_MAX;
-	fprintf(stderr, "Wrong number of arguments. Using 1000.\n");
-	num = 1000;
+	fprintf(stderr, "Wrong number of arguments. Using 10000.\n");
+	num = 10000;
     }
     else
 	// Convert the argument to integer
 	num = atoi(argv[1]);
+
+    // Measure the time for the sequential
+    t = clock();
 
     while(i<num)
     {
@@ -365,8 +385,10 @@ int main(int argc , char* argv[])
 	// Would be a nice feature to calculate
 	// the variance of pi calculations
     }
+    t = clock() - t;
+    printf(" --- Sequential time elapsed: %f\n", (double)t/CLOCKS_PER_SEC);
 
-    printf("For %ld tries pi is %.6f\n", num, pi);
+    printf(" --- For %ld tries pi is %.6f\n", num, pi);
 
     return 0;
 }

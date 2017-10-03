@@ -3,21 +3,22 @@
     // Only one not used argument
     __kernel void test(__global float *data)
     {
-    	int id = get_global_id(0);
-	    data[id] = id;
-	    float x = 1.1;
-	    float y = 2.2;
-	    data[id] = id*x*y;
+    // circle center point is 0.5
+       __private float point = 0.5;
 
+       int id = get_global_id(0);
+       data[id] = id;       
     }   
 
     __kernel void mc(__global float *x, __global float* y, 
                      __global float* data, const unsigned int boundary)
     {
         int id = get_global_id(0);
+	float point = 0.5;
+
 	if(id<boundary)
 	{
-            __private float point = 0.5;
-	}
+	    data[id] = sqrt(pow(x[id]-point, 2)+pow(y[id]-point, 2));	
+ 	}
     }	  
 

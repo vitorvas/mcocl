@@ -18,6 +18,7 @@
 #include<stdlib.h>
 #include<errno.h>
 #include<math.h>
+#include<time.h>
 
 // Using double drand48(void) to generate
 // random numbers (altough it's being called in a way
@@ -46,6 +47,9 @@ int main(int argc , char* argv[])
     // Convert the argument to integer
     num = atoi(argv[1]);
 
+    clock_t t;
+    t = clock();
+    
     while(i<num)
     {
 	x = drand48();
@@ -62,7 +66,9 @@ int main(int argc , char* argv[])
 	// avoid infinity loop
 	i++;
     }
-
+    t = clock()-t;
+    printf("Time taken: %f\n", (double)t/CLOCKS_PER_SEC);
+    
     printf("For %ld tries pi is %.6f\n", num, pi);
     
     return 0;
