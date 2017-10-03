@@ -14,7 +14,7 @@
 // check if points randomly* chosen to be inside
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
-# define SIZE 32 // Achei o erro! Estava no clEnqueueNDRangeKernel
+# define SIZE 16 // Achei o erro! Estava no clEnqueueNDRangeKernel
                 // O parâmetro que estava sendo passado estava como SIZE
                 // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
 
@@ -26,6 +26,7 @@
 #include<errno.h>
 #include<math.h>
 #include<string.h> //strcpy()
+#include<limits.h> // Try to use the maximum integer number to calculate pi
 
 #include<CL/cl.h>
 
@@ -244,19 +245,9 @@ int main(int argc , char* argv[])
 	"{\n"
 	"int id = get_global_id(0);\n"
 	"data[id] = id;\n"
-	"float x = (float)drand48();\n"
-	"float y = (float)drand48();\n"
-	"for(int i=0; i< 100000000; i++)\n"
-	"for(int j=0; j< 100000000; j++)\n"
-	"for(int z=0; z< 100000000; z++)\n"
-	"{ \n"
-	"{ \n"
-	"{ \n"
-	"data[id] = i*j;\n"
-	"}\n"
-	"}\n"
-	"}\n"
-	"data[id] = id;\n"
+	"float x = 1.1;\n"
+	"float y = 2.2;\n"
+	"data[id] = id*x*y;\n"
         "}\n"
     };
 
@@ -286,48 +277,56 @@ int main(int argc , char* argv[])
     }
     
     cl_kernel my_kernel;
-    my_kernel = clCreateKernel(my_program, "test", NULL);
+    my_kernel = clCreateKernel(my_program, "mc", NULL);
 
     cl_float xf[SIZE];
     cl_float yf[SIZE];
+    cl_float data[SIZE];
+    
     for(int c=0; c<SIZE; c++)
     {
       xf[c]=drand48();
       yf[c]=drand48();
+      data[c]=0.0;
     }
     
-    printf("\n --- BEFORE: ");
-    for(int c=0; c<SIZE; c++)
-    {
-      printf("[%.2f,  ", xf[c]);
-      printf("%.2f] ", xf[c]);
-    }
-    printf("\n");
+    /* printf("\n --- BEFORE: "); */
+    /* for(int c=0; c<SIZE; c++) */
+    /* { */
+    /*   printf("[%.2f,", xf[c]); */
+    /*   printf("%.2f] ", yf[c]); */
+    /* } */
+    /* printf("\n"); */
     
     // Create a buffer with data to my kernel (I'm not using it to write, only to get
     // the values of the kernel)
-    cl_mem datax, datay, data;
-    datax = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
-    datay = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
-    data = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(cl_float), NULL, NULL); 
+    cl_mem bufferx, buffery, buffero;
+    bufferx = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
+    buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
+    buffero = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(cl_float), NULL, NULL); 
 
     // Enqueue and execute the kernel
-    clEnqueueWriteBuffer(my_queue, datax, CL_FALSE, 0, SIZE*sizeof(cl_float), &datax, 0, NULL, NULL);
-    clSetKernelArg(my_kernel, 0, sizeof(datax), &datax);
+    clEnqueueWriteBuffer(my_queue, bufferx, CL_FALSE, 0, SIZE*sizeof(cl_float), &xf, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, buffery, CL_FALSE, 0, SIZE*sizeof(cl_float), &yf, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
 
+    clSetKernelArg(my_kernel, 0, sizeof(bufferx), &bufferx);
+    clSetKernelArg(my_kernel, 0, sizeof(buffery), &buffery);
+    clSetKernelArg(my_kernel, 0, sizeof(buffero), &buffero);
+    
     size_t global_dim[] = {SIZE, 0, 0}; // Quantas dimensoes?
     size_t work_dim[] = {4096,0,0};
     
     clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, 0, 0, NULL, NULL);
 
-    clEnqueueReadBuffer(my_queue, datax, CL_FALSE, 0, SIZE*sizeof(cl_float), &datax, 0, NULL, NULL);
+    clEnqueueReadBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
 
     clFinish(my_queue);
 
-    printf("\n --- AFTER: ");
-    for(int c=0; c<SIZE; c++)
-	printf("%.2f ", xf[c]);
-    printf("\n");
+    /* printf("\n --- AFTER: "); */
+    /* for(int c=0; c<SIZE; c++) */
+    /* 	printf("%.2f ", data[c]); */
+    /* printf("\n"); */
     
     clReleaseCommandQueue(my_queue);
     clReleaseContext(my_context);
@@ -346,8 +345,10 @@ int main(int argc , char* argv[])
     
     // Check if the argument is ok
     if (argc < 2) {
-	fprintf(stderr, "Wrong number of arguments. Using the default: 100000 numbers.\n");
-	num = 100000;
+//	fprintf(stderr, "Wrong number of arguments. Using the ULONG_MAX = %lu.\n", ULONG_MAX);
+//	num = ULONG_MAX;
+	fprintf(stderr, "Wrong number of arguments. Using 1000.\n");
+	num = 1000;
     }
     else
 	// Convert the argument to integer
