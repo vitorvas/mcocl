@@ -14,8 +14,8 @@
 // check if points randomly* chosen to be inside
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
-# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
-                // O parâmetro que estava sendo passado estava como SIZE
+//# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
+# define SIZE (long int)16                // O parâmetro que estava sendo passado estava como SIZE
                 // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
 
 // The proportion of points inside the circle
@@ -332,10 +332,10 @@ int main(int argc , char* argv[])
     printf(" --- OpenCL launch time elapsed: %f\n", (double)t/CLOCKS_PER_SEC);
     printf(" --- Size of work-group: %ld\n", SIZE);
     
-    /* printf("\n --- AFTER: "); */
-    /* for(int c=0; c<SIZE; c++) */
-    /*   printf("%.2f ", data[c]); */
-    /* printf("\n"); */
+    printf("\n --- AFTER: ");
+    for(int c=0; c<SIZE; c++)
+      printf("%.2f ", data[c]);
+    printf("\n");
     
     clReleaseCommandQueue(my_queue);
     clReleaseContext(my_context);
