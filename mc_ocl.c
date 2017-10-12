@@ -15,7 +15,7 @@
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
 //# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
-# define SIZE (long int)16                // O parâmetro que estava sendo passado estava como SIZE
+# define SIZE (long int)4096                // O parâmetro que estava sendo passado estava como SIZE
                 // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
 
 // The proportion of points inside the circle
@@ -331,12 +331,28 @@ int main(int argc , char* argv[])
     t = clock() - t;
     printf(" --- OpenCL launch time elapsed: %f\n", (double)t/CLOCKS_PER_SEC);
     printf(" --- Size of work-group: %ld\n", SIZE);
+
+    // Initialize counters
+    unsigned int cl_total = 0;
+    unsigned int cl_size = 0;
+    double cl_pi;
     
     printf("\n --- AFTER: ");
     for(int c=0; c<SIZE; c++)
-      printf("%.2f ", data[c]);
-    printf("\n");
-    
+    {
+      //  printf("%.2f ", data[c]);
+      // Totalize the number of points inside
+      // the circle
+      if(data[c]<point)
+	cl_total++;
+    }
+    cl_size += SIZE;
+   
+    printf("\n\n");
+    printf("----------------------------------------------------------------------------------------- \n\n");
+    cl_pi=4*(double)cl_total/cl_size;
+
+    printf(" --- For %d tries OpenCL calculated pi is %.6f\n", cl_size, cl_pi);
     clReleaseCommandQueue(my_queue);
     clReleaseContext(my_context);
 
