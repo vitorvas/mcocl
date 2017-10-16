@@ -14,8 +14,8 @@
 // check if points randomly* chosen to be inside
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
-//# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
-# define SIZE (long int)4096                // O parâmetro que estava sendo passado estava como SIZE
+# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
+//# define SIZE (long int)4096                // O parâmetro que estava sendo passado estava como SIZE
                 // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
 
 // The proportion of points inside the circle
@@ -264,7 +264,7 @@ int main(int argc , char* argv[])
     t = clock()-t;
     printf(" --- Compiling OpenCL program time: %f\n", (double)t/CLOCKS_PER_SEC);
     
-    // Dica do developer central
+    // Dica do developer central para tratar o erro
     if(err)
     {
       printf(" ---- CL Error: %s\n", clGetErrorString(err));
@@ -282,22 +282,7 @@ int main(int argc , char* argv[])
     cl_float xf[SIZE];
     cl_float yf[SIZE];
     cl_float data[SIZE];
-    
-    for(int c=0; c<SIZE; c++)
-    {
-      xf[c]=drand48();
-      yf[c]=drand48();
-      data[c]=0.0;
-    }
-    
-    /* printf("\n --- BEFORE: "); */
-    /* for(int c=0; c<SIZE; c++) */
-    /* { */
-    /*   printf("[%.2f,", xf[c]); */
-    /*   printf("%.2f] ", yf[c]); */
-    /* } */
-    /* printf("\n"); */
-    
+
     // Create a buffer with data to my kernel (I'm not using it to write, only to get
     // the values of the kernel)
     cl_mem bufferx, buffery, buffero, bufferb;
@@ -307,49 +292,76 @@ int main(int argc , char* argv[])
     buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
     buffero = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(cl_float), NULL, NULL); 
     bufferb = clCreateBuffer(my_context, CL_MEM_READ_ONLY, sizeof(cl_int), NULL, NULL);
-    
-    // Enqueue and execute the kernel
-    clEnqueueWriteBuffer(my_queue, bufferx, CL_FALSE, 0, SIZE*sizeof(cl_float), &xf, 0, NULL, NULL);
-    clEnqueueWriteBuffer(my_queue, buffery, CL_FALSE, 0, SIZE*sizeof(cl_float), &yf, 0, NULL, NULL);
-    clEnqueueWriteBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
-    clEnqueueWriteBuffer(my_queue, bufferb, CL_FALSE, 0, sizeof(cl_int), &bound, 0, NULL, NULL);
-    
-    clSetKernelArg(my_kernel, 0, sizeof(cl_mem), &bufferx);
-    clSetKernelArg(my_kernel, 1, sizeof(cl_mem), &buffery);
-    clSetKernelArg(my_kernel, 2, sizeof(cl_mem), &buffero);
-    clSetKernelArg(my_kernel, 3, sizeof(cl_int), &bufferb);
-    
-    size_t global_dim[] = {SIZE, 0, 0}; // Quantas dimensoes?
-    size_t work_dim[] = {4096, 0, 0};
+
+    // A tentative loop to launch N kernels
+    // Initialize counters
+    unsigned long int cl_total = 0;
+    unsigned long int cl_size = 0;
+    double cl_pi;
 
     t = clock();
-    clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, 0, 0, NULL, NULL);
+//    for(int loop=0; loop<SIZE; loop++)
+    for(int loop=0; loop<250; loop++)
+    {
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////
+	for(int c=0; c<SIZE; c++)
+	{
+	    xf[c]=drand48();
+	    yf[c]=drand48();
+	    data[c]=0.0;
+	}
+	
+	/* printf("\n --- BEFORE: "); */
+	/* for(int c=0; c<SIZE; c++) */
+	/* { */
+	/*   printf("[%.2f,", xf[c]); */
+	/*   printf("%.2f] ", yf[c]); */
+	/* } */
+	/* printf("\n"); */
+	
+	
+	// Enqueue and execute the kernel
+	clEnqueueWriteBuffer(my_queue, bufferx, CL_FALSE, 0, SIZE*sizeof(cl_float), &xf, 0, NULL, NULL);
+	clEnqueueWriteBuffer(my_queue, buffery, CL_FALSE, 0, SIZE*sizeof(cl_float), &yf, 0, NULL, NULL);
+	clEnqueueWriteBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
+	clEnqueueWriteBuffer(my_queue, bufferb, CL_FALSE, 0, sizeof(cl_int), &bound, 0, NULL, NULL);
+	
+	clSetKernelArg(my_kernel, 0, sizeof(cl_mem), &bufferx);
+	clSetKernelArg(my_kernel, 1, sizeof(cl_mem), &buffery);
+	clSetKernelArg(my_kernel, 2, sizeof(cl_mem), &buffero);
+	clSetKernelArg(my_kernel, 3, sizeof(cl_int), &bufferb);
+	
+	size_t global_dim[] = {SIZE, 0, 0}; // Quantas dimensoes?
+	size_t work_dim[] = {4096, 0, 0};
+	
 
-    clEnqueueReadBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
-
-    clFinish(my_queue);
+	clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, 0, 0, NULL, NULL);
+	
+	clEnqueueReadBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
+	
+	clFinish(my_queue);
+	
+	for(int c=0; c<SIZE; c++)
+	{
+	    //  printf("%.2f ", data[c]);
+	    // Totalize the number of points inside
+	    // the circle
+	    if(data[c]<point)
+		cl_total++;
+	}
+	cl_size += SIZE;
+    }
+    
     t = clock() - t;
     printf(" --- OpenCL launch time elapsed: %f\n", (double)t/CLOCKS_PER_SEC);
     printf(" --- Size of work-group: %ld\n", SIZE);
 
-    // Initialize counters
-    unsigned int cl_total = 0;
-    unsigned int cl_size = 0;
-    double cl_pi;
     
-    printf("\n --- AFTER: ");
-    for(int c=0; c<SIZE; c++)
-    {
-      //  printf("%.2f ", data[c]);
-      // Totalize the number of points inside
-      // the circle
-      if(data[c]<point)
-	cl_total++;
-    }
-    cl_size += SIZE;
-   
-    printf("\n\n");
-    printf("----------------------------------------------------------------------------------------- \n\n");
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    printf("\n");
+    printf("----------------------------------------------------------------------------------------- \n");
     cl_pi=4*(double)cl_total/cl_size;
 
     printf(" --- For %d tries OpenCL calculated pi is %.6f\n", cl_size, cl_pi);

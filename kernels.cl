@@ -13,6 +13,10 @@
 
 ///////////////////////////////////////////////////////////////////////
 
+// High latency communication: the whole array is written back
+// 1) Another solution is to perform a reduction inside the kernel.
+// 2) Probably the best solution is to draw random numbers inside the kernel
+//    and share only scalars
     __kernel void mc(__global float *x, __global float* y, 
                      __global float* data, const unsigned int boundary)
     {
