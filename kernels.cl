@@ -25,7 +25,7 @@
 
 	if(id<boundary)
 	{
-	    data[id] = sqrt(pow(x[id]-point, 2)+pow(y[id]-point, 2));	
+	    data[id] = sqrt(pown(x[id]-point, 2)+pown(y[id]-point, 2));	
  	}
     }	  
 

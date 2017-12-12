@@ -14,14 +14,15 @@
 // check if points randomly* chosen to be inside
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
-# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
-//# define SIZE (long int)4096                // O parâmetro que estava sendo passado estava como SIZE
+//# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
+# define SIZE (long int)8192                // O parâmetro que estava sendo passado estava como SIZE
                 // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
 
 // The proportion of points inside the circle
 // above the total number of points gives pi/4
 
 #include<stdio.h>
+#define _XOPEN_SOURCE    /* ALWAYS BEFORE the include statement: needed by drand48() */ 
 #include<stdlib.h>
 #include<errno.h>
 #include<math.h>
@@ -49,7 +50,7 @@ typedef unsigned long  uint64_t;
 
 // Using double drand48(void) to generate
 // random numbers (altough it's being called in a way
-// pseudo numbers are generated
+// pseudo numbers are generated)
 
 int main(int argc , char* argv[])
 {
@@ -135,7 +136,7 @@ int main(int argc , char* argv[])
 	  exit(0);
 	}
       
-      uint j=0;
+      unsigned int j=0;
       while(j<n_devices)
       {
 	// ----------------------------
@@ -260,10 +261,17 @@ int main(int argc , char* argv[])
     my_program = clCreateProgramWithSource(my_context, 1, (const char**)&kernel, NULL, NULL);
 
     t = clock();
-    err = clBuildProgram(my_program, 0, NULL, NULL, NULL, NULL);
+    err = clBuildProgram(my_program, 0, NULL, "-Werror", NULL, NULL);
     t = clock()-t;
     printf(" --- Compiling OpenCL program time: %f\n", (double)t/CLOCKS_PER_SEC);
     
+    // Inserido na raça para mostrar os warnings
+    printf("\n ---------------------------------------------------------------------------\n");
+    printf("\n ---- CL Error: %s\n", clGetErrorString(err));
+    char log[10240] = "";
+    err = clGetProgramBuildInfo(my_program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(log), log, NULL);
+    printf("\n Program build log: \n%s\n\n", log);
+
     // Dica do developer central para tratar o erro
     if(err)
     {
@@ -300,14 +308,14 @@ int main(int argc , char* argv[])
     double cl_pi;
 
     t = clock();
-//    for(int loop=0; loop<SIZE; loop++)
-    for(int loop=0; loop<250; loop++)
+    for(int loop=0; loop<1; loop++)
+//    for(int loop=0; loop<250; loop++)
     {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	for(int c=0; c<SIZE; c++)
 	{
-	    xf[c]=drand48();
-	    yf[c]=drand48();
+	    xf[c]=random();
+	    yf[c]=random();
 	    data[c]=0.0;
 	}
 	
@@ -331,8 +339,8 @@ int main(int argc , char* argv[])
 	clSetKernelArg(my_kernel, 2, sizeof(cl_mem), &buffero);
 	clSetKernelArg(my_kernel, 3, sizeof(cl_int), &bufferb);
 	
-	size_t global_dim[] = {SIZE, 0, 0}; // Quantas dimensoes?
-	size_t work_dim[] = {4096, 0, 0};
+	size_t global_dim[] = {1, 0, 0}; // Quantas dimensoes?
+	size_t work_dim[] = {SIZE, 0, 0};
 	
 
 	clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_dim, 0, 0, NULL, NULL);
@@ -381,42 +389,45 @@ int main(int argc , char* argv[])
     // - cl_context
     
     // Check if the argument is ok
-    if (argc < 2) {
-//	fprintf(stderr, "Wrong number of arguments. Using the ULONG_MAX = %lu.\n", ULONG_MAX);
-//	num = ULONG_MAX;
-	fprintf(stderr, "Wrong number of arguments. Using 10000.\n");
-	num = 10000;
-    }
-    else
-	// Convert the argument to integer
-	num = atoi(argv[1]);
+/*     if (argc < 2) { */
+/* //	fprintf(stderr, "Wrong number of arguments. Using the ULONG_MAX = %lu.\n", ULONG_MAX); */
+/* //	num = ULONG_MAX; */
+/* 	fprintf(stderr, "Wrong number of arguments. Using 10000.\n"); */
+/* 	num = 10000; */
+/*     } */
+/*     else */
+/* 	// Convert the argument to integer */
+/* 	num = atoi(argv[1]); */
 
-    // Measure the time for the sequential
-    t = clock();
+/*     // Measure the time for the sequential */
+/*     t = clock(); */
+/*     r = 0; */
 
-    while(i<num)
-    {
-	x = drand48();
-	y = drand48();
+/*     printf("Num= %d\n", num); */
 
-	// Check if point belongs to circle
-	r = sqrt(pow((x-point),2)+pow((y-point),2));
+/*     while(i<num) */
+/*     { */
+/* 	x = drand48(); */
+/* 	y = drand48(); */
 
-	// Get the points inside the circle
-	if (r<point)
-	    total++;
-	pi=4*(double)total/num;
+/* 	// Check if point belongs to circle */
+/* 	r = sqrt(pow((x-point),2)+pow((y-point),2)); */
 
-	// avoid infinity loop
-	i++;
+/* 	// Get the points inside the circle */
+/* 	if (r<point) */
+/* 	    total++; */
+/* 	pi=4*(double)total/num; */
 
-	// Would be a nice feature to calculate
-	// the variance of pi calculations
-    }
-    t = clock() - t;
-    printf(" --- Sequential time elapsed: %f\n", (double)t/CLOCKS_PER_SEC);
+/* 	// avoid infinity loop */
+/* 	i++; */
 
-    printf(" --- For %ld tries pi is %.6f\n", num, pi);
+/* 	// Would be a nice feature to calculate */
+/* 	// the variance of pi calculations */
+/*     } */
+/*     t = clock() - t; */
+/*     printf(" --- Sequential time elapsed: %f\n", (double)t/CLOCKS_PER_SEC); */
+
+/*     printf(" --- For %ld tries pi is %.6f\n", num, pi); */
 
     return 0;
 }
