@@ -5,7 +5,7 @@
     __kernel void test(__global float *data)
     {
     // circle center point is 0.5
-       __private float point = 0.5;
+    //   __private float point = 0.5;
 
        int id = get_global_id(0);
        data[id] = id;       
