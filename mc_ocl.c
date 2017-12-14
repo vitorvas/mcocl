@@ -351,7 +351,7 @@ int main(int argc , char* argv[])
       size_t work_dim[] = {SIZE, 0, 0};
 	
 
-      clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, work_dim, 0, 0, NULL, NULL);
+      clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, work_dim, NULL, 0, NULL, NULL);
 	
       clEnqueueReadBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
 	
