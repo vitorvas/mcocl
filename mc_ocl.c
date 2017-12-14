@@ -297,8 +297,8 @@ int main(int argc , char* argv[])
     cl_mem bufferx, buffery, buffero, bufferb;
     cl_int bound = SIZE;
     
-    bufferx = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
-    buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
+    bufferx = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(cl_float), xf, NULL);
+    buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(cl_float), yf, NULL);
     buffero = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(cl_float), NULL, NULL); 
     bufferb = clCreateBuffer(my_context, CL_MEM_READ_ONLY, sizeof(cl_int), NULL, NULL);
 
