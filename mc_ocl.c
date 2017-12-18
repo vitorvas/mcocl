@@ -227,10 +227,10 @@ int main(int argc , char* argv[])
     }
 
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id, NULL);
-    
+
     if(err != CL_SUCCESS)
     {
-	fprintf(stderr, "Failed to get CONTEXT info!\n");
+        printf(" ---- CL Error: %s\n", clGetErrorString(err));
 	return(errno);
     }
 
@@ -240,7 +240,7 @@ int main(int argc , char* argv[])
     my_queue = clCreateCommandQueueWithProperties(my_context, device_id, 0, NULL);
     if(err != CL_SUCCESS)
     {
-	fprintf(stderr, "Failed to create CL COMMAND QUEUE!\n");
+        printf(" ---- CL Error: %s\n", clGetErrorString(err));
 	return(errno);
     }
     
