@@ -284,6 +284,9 @@ int main(int argc , char* argv[])
     printf("\n Program build log: \n%s\n\n", log);
 
     cl_kernel my_kernel;
+
+    // It is possible to create as many kernels as functions defined inside it using
+    // clCreateKernelsInProgram(...)
     my_kernel = clCreateKernel(my_program, "mc", NULL);
 
     cl_float xf[SIZE];
