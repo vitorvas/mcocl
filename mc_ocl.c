@@ -227,10 +227,10 @@ int main(int argc , char* argv[])
     }
 
     err = clGetContextInfo(my_context, CL_CONTEXT_DEVICES, deviceBufferSize, &device_id, NULL);
-    
+
     if(err != CL_SUCCESS)
     {
-	fprintf(stderr, "Failed to get CONTEXT info!\n");
+        printf(" ---- CL Error: %s\n", clGetErrorString(err));
 	return(errno);
     }
 
@@ -240,7 +240,7 @@ int main(int argc , char* argv[])
     my_queue = clCreateCommandQueueWithProperties(my_context, device_id, 0, NULL);
     if(err != CL_SUCCESS)
     {
-	fprintf(stderr, "Failed to create CL COMMAND QUEUE!\n");
+        printf(" ---- CL Error: %s\n", clGetErrorString(err));
 	return(errno);
     }
     
@@ -250,10 +250,13 @@ int main(int argc , char* argv[])
     FILE *fh = fopen(fileName, "r");
     if(!fh) {
         printf("Error: Failed to open file containing kernels. EXITING...\n");
-        return 0;
+        return(errno);
     }
+    // stat is a system call to get file status
+    // man stat(2)
     struct stat statbuf;
     stat(fileName, &statbuf);
+
     char *kernel = (char *) malloc(statbuf.st_size + 1);
     fread(kernel, statbuf.st_size, 1, fh);
     kernel[statbuf.st_size] = '\0';
@@ -261,30 +264,25 @@ int main(int argc , char* argv[])
     // Kernels are now on the file kernels.cl
     my_program = clCreateProgramWithSource(my_context, 1, (const char**)&kernel, NULL, NULL);
 
+    const char opt[]="-cl-std=CL1.2 -Werror";
+
     t = clock();
-    err = clBuildProgram(my_program, 0, NULL, "-Werror", NULL, NULL);
+    err = clBuildProgram(my_program, 0, NULL, opt, NULL, NULL);
     t = clock()-t;
     printf(" --- Compiling OpenCL program time: %f\n", (double)t/CLOCKS_PER_SEC);
     
     // Inserido na raça para mostrar os warnings
     printf("\n ---------------------------------------------------------------------------\n");
     printf("\n ---- CL Error: %s\n", clGetErrorString(err));
+
+    // Important
+    //
+    // log should be dynamically allocated since the build log can grow a lot.
+    // The clGetProgramBuildInfo deserves a better implementation...
     char log[10240] = "";
     err = clGetProgramBuildInfo(my_program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(log), log, NULL);
     printf("\n Program build log: \n%s\n\n", log);
 
-    // Dica do developer central para tratar o erro
-    if(err)
-    {
-      printf(" ---- CL Error: %s\n", clGetErrorString(err));
-
-      char log[10240] = "";
-      err = clGetProgramBuildInfo(my_program, device_id, CL_PROGRAM_BUILD_LOG,
-				  sizeof(log), log, NULL);
-      printf("Program build log: \n%s\n\nOpenCL build fatal error. EXITING...\n", log);
-      exit(0);
-    }
-    
     cl_kernel my_kernel;
     my_kernel = clCreateKernel(my_program, "mc", NULL);
 
@@ -297,8 +295,8 @@ int main(int argc , char* argv[])
     cl_mem bufferx, buffery, buffero, bufferb;
     cl_int bound = SIZE;
     
-    bufferx = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
-    buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY, SIZE*sizeof(cl_float), NULL, NULL);
+    bufferx = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(cl_float), xf, NULL);
+    buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(cl_float), yf, NULL);
     buffero = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(cl_float), NULL, NULL); 
     bufferb = clCreateBuffer(my_context, CL_MEM_READ_ONLY, sizeof(cl_int), NULL, NULL);
 
@@ -351,7 +349,7 @@ int main(int argc , char* argv[])
       size_t work_dim[] = {SIZE, 0, 0};
 	
 
-      clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, work_dim, 0, 0, NULL, NULL);
+      clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, work_dim, NULL, 0, NULL, NULL);
 	
       clEnqueueReadBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
 	
