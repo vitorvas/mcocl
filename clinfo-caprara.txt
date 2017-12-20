@@ -1,205 +1,133 @@
-Number of platforms                               2
-  Platform Name                                   Clover
-  Platform Vendor                                 Mesa
-  Platform Version                                OpenCL 1.1 Mesa 17.0.5
+Number of platforms                               1
+  Platform Name                                   AMD Accelerated Parallel Processing
+  Platform Vendor                                 Advanced Micro Devices, Inc.
+  Platform Version                                OpenCL 2.1 AMD-APP (2527.3)
   Platform Profile                                FULL_PROFILE
-  Platform Extensions                             cl_khr_icd
-  Platform Extensions function suffix             MESA
+  Platform Extensions                             cl_khr_icd cl_amd_event_callback cl_amd_offline_devices 
+  Platform Host timer resolution                  <printPlatformInfo:5: get CL_PLATFORM_HOST_TIMER_RESOLUTION : error -30>
+  Platform Extensions function suffix             AMD
 
-  Platform Name                                   Portable Computing Language
-  Platform Vendor                                 The pocl project
-  Platform Version                                OpenCL 2.0 pocl 0.14-pre, LLVM 3.9.1
-  Platform Profile                                FULL_PROFILE
-  Platform Extensions                             cl_khr_icd
-  Platform Extensions function suffix             POCL
-
-  Platform Name                                   Clover
+  Platform Name                                   AMD Accelerated Parallel Processing
 Number of devices                                 1
-  Device Name                                     NV96
-  Device Vendor                                   NVIDIA
-  Device Vendor ID                                0x10de
-  Device Version                                  OpenCL 1.1 Mesa 17.0.5
-  Driver Version                                  17.0.5
-  Device OpenCL C Version                         OpenCL C 1.1 
+  Device Name                                     Baffin
+  Device Vendor                                   Advanced Micro Devices, Inc.
+  Device Vendor ID                                0x1002
+  Device Version                                  OpenCL 1.2 AMD-APP (2527.3)
+  Driver Version                                  2527.3
+  Device OpenCL C Version                         OpenCL C 1.2 
   Device Type                                     GPU
   Device Available                                Yes
   Device Profile                                  FULL_PROFILE
-  Max compute units                               4
-  Max clock frequency                             512MHz
-  Max work item dimensions                        3
-  Max work item sizes                             512x512x64
-  Max work group size                             512
-  Compiler Available                              Yes
-  Preferred work group size multiple              <getWGsizes:511: build program : error -11>
-  Preferred / native vector sizes                 
-    char                                                16 / 16      
-    short                                                8 / 8       
-    int                                                  4 / 4       
-    long                                                 2 / 2       
-    half                                                 0 / 0        (n/a)
-    float                                                4 / 4       
-    double                                               0 / 0        (n/a)
-  Half-precision Floating-point support           (n/a)
-  Single-precision Floating-point support         (core)
-    Denormals                                     No
-    Infinity and NANs                             Yes
-    Round to nearest                              Yes
-    Round to zero                                 No
-    Round to infinity                             No
-    IEEE754-2008 fused multiply-add               No
-    Support is emulated in software               No
-    Correctly-rounded divide and sqrt operations  No
-  Double-precision Floating-point support         (n/a)
-  Address bits                                    32, Little-Endian
-  Global memory size                              4294967296 (4GiB)
-  Error Correction support                        No
-  Max memory allocation                           1099511627776 (1024GiB)
-  Unified memory for Host and Device              Yes
-  Minimum alignment for any data type             128 bytes
-  Alignment of base address                       1024 bits (128 bytes)
-  Global Memory cache type                        None
-  Image support                                   No
-  Local memory type                               Local
-  Local memory size                               16384 (16KiB)
-  Max constant buffer size                        0
-  Max number of constant args                     0
-  Max size of kernel argument                     4096 (4KiB)
-  Queue properties                                
-    Out-of-order execution                        No
-    Profiling                                     Yes
-  Profiling timer resolution                      0ns
-  Execution capabilities                          
-    Run OpenCL kernels                            Yes
-    Run native kernels                            No
-  Device Extensions                               cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_byte_addressable_store
-
-  Platform Name                                   Portable Computing Language
-Number of devices                                 1
-  Device Name                                     pthread-Intel(R) Xeon(R) CPU           E5520  @ 2.27GHz
-  Device Vendor                                   GenuineIntel
-  Device Vendor ID                                0x8086
-  Device Version                                  OpenCL 2.0 pocl HSTR: pthread-x86_64-unknown-linux-gnu-haswell
-  Driver Version                                  0.14-pre
-  Device OpenCL C Version                         OpenCL C 2.0
-  Device Type                                     CPU, Default
-  Device Available                                Yes
-  Device Profile                                  FULL_PROFILE
-  Max compute units                               8
-  Max clock frequency                             2260MHz
+  Device Board Name (AMD)                         Radeon RX 560 Series
+  Device Topology (AMD)                           PCI-E, 03:00.0
+  Max compute units                               16
+  SIMD per compute unit (AMD)                     4
+  SIMD width (AMD)                                16
+  SIMD instruction width (AMD)                    1
+  Max clock frequency                             1180MHz
+  Graphics IP (AMD)                               8.0
   Device Partition                                (core)
-    Max number of sub-devices                     8
-    Supported partition types                     equally, by counts
+    Max number of sub-devices                     16
+    Supported partition types                     none specified
   Max work item dimensions                        3
-  Max work item sizes                             4096x4096x4096
-  Max work group size                             4096
+  Max work item sizes                             1024x1024x1024
+  Max work group size                             256
   Compiler Available                              Yes
   Linker Available                                Yes
-  Preferred work group size multiple              8
+  Preferred work group size multiple              64
+  Wavefront width (AMD)                           64
   Preferred / native vector sizes                 
-    char                                                16 / 16      
-    short                                                8 / 8       
-    int                                                  4 / 4       
-    long                                                 2 / 2       
-    half                                                 8 / 8        (n/a)
-    float                                                4 / 4       
-    double                                               2 / 2        (cl_khr_fp64)
-  Half-precision Floating-point support           (n/a)
-  Single-precision Floating-point support         (core)
+    char                                                 4 / 4       
+    short                                                2 / 2       
+    int                                                  1 / 1       
+    long                                                 1 / 1       
+    half                                                 1 / 1        (cl_khr_fp16)
+    float                                                1 / 1       
+    double                                               1 / 1        (cl_khr_fp64)
+  Half-precision Floating-point support           (cl_khr_fp16)
     Denormals                                     No
-    Infinity and NANs                             Yes
-    Round to nearest                              Yes
+    Infinity and NANs                             No
+    Round to nearest                              No
     Round to zero                                 No
     Round to infinity                             No
     IEEE754-2008 fused multiply-add               No
     Support is emulated in software               No
     Correctly-rounded divide and sqrt operations  No
-  Double-precision Floating-point support         (cl_khr_fp64)
+  Single-precision Floating-point support         (core)
     Denormals                                     No
     Infinity and NANs                             Yes
     Round to nearest                              Yes
-    Round to zero                                 No
-    Round to infinity                             No
-    IEEE754-2008 fused multiply-add               No
+    Round to zero                                 Yes
+    Round to infinity                             Yes
+    IEEE754-2008 fused multiply-add               Yes
+    Support is emulated in software               No
+    Correctly-rounded divide and sqrt operations  Yes
+  Double-precision Floating-point support         (cl_khr_fp64)
+    Denormals                                     Yes
+    Infinity and NANs                             Yes
+    Round to nearest                              Yes
+    Round to zero                                 Yes
+    Round to infinity                             Yes
+    IEEE754-2008 fused multiply-add               Yes
     Support is emulated in software               No
     Correctly-rounded divide and sqrt operations  No
   Address bits                                    64, Little-Endian
-  Global memory size                              27424292864 (25.54GiB)
+  Global memory size                              4126625792 (3.843GiB)
+  Global free memory (AMD)                        4006340 (3.821GiB)
+  Global memory channels (AMD)                    4
+  Global memory banks per channel (AMD)           16
+  Global memory bank width (AMD)                  256 bytes
   Error Correction support                        No
-  Max memory allocation                           27424292864 (25.54GiB)
-  Unified memory for Host and Device              Yes
-  Shared Virtual Memory (SVM) capabilities        (core)
-    Coarse-grained buffer sharing                 Yes
-    Fine-grained buffer sharing                   Yes
-    Fine-grained system sharing                   No
-    Atomics                                       Yes
+  Max memory allocation                           3344508518 (3.115GiB)
+  Unified memory for Host and Device              No
   Minimum alignment for any data type             128 bytes
-  Alignment of base address                       1024 bits (128 bytes)
-  Preferred alignment for atomics                 
-    SVM                                           0 bytes
-    Global                                        0 bytes
-    Local                                         0 bytes
-  Max size for global variable                    0
-  Preferred total size of global vars             0
+  Alignment of base address                       2048 bits (256 bytes)
   Global Memory cache type                        Read/Write
-  Global Memory cache size                        32768 (32KiB)
-  Global Memory cache line size                   64 bytes
+  Global Memory cache size                        16384 (16KiB)
+  Global Memory cache line                        64 bytes
   Image support                                   Yes
     Max number of samplers per kernel             16
-    Max size for 1D images from buffer            1714018304 pixels
+    Max size for 1D images from buffer            134217728 pixels
     Max 1D or 2D image array size                 2048 images
-    Max 2D image size                             32768x32768 pixels
+    Base address alignment for 2D image buffers   256 bytes
+    Pitch alignment for 2D image buffers          256 bytes
+    Max 2D image size                             16384x16384 pixels
     Max 3D image size                             2048x2048x2048 pixels
     Max number of read image args                 128
-    Max number of write image args                128
-    Max number of read/write image args           128
-  Max number of pipe args                         16
-  Max active pipe reservations                    1
-  Max pipe packet size                            1024
-  Local memory type                               Global
-  Local memory size                               27424292864 (25.54GiB)
-  Max constant buffer size                        27424292864 (25.54GiB)
+    Max number of write image args                8
+  Local memory type                               Local
+  Local memory size                               32768 (32KiB)
+  Local memory syze per CU (AMD)                  65536 (64KiB)
+  Local memory banks (AMD)                        32
+  Max constant buffer size                        3344508518 (3.115GiB)
   Max number of constant args                     8
   Max size of kernel argument                     1024
-  Queue properties (on host)                      
+  Queue properties                                
     Out-of-order execution                        No
     Profiling                                     Yes
-  Queue properties (on device)                    
-    Out-of-order execution                        Yes
-    Profiling                                     Yes
-    Preferred size                                16384 (16KiB)
-    Max size                                      262144 (256KiB)
-  Max queues on device                            1
-  Max events on device                            1024
   Prefer user sync for interop                    Yes
   Profiling timer resolution                      1ns
+  Profiling timer offset since Epoch (AMD)        1513798925916313258ns (Wed Dec 20 17:42:05 2017)
   Execution capabilities                          
     Run OpenCL kernels                            Yes
-    Run native kernels                            Yes
+    Run native kernels                            No
+    Thread trace supported (AMD)                  Yes
     SPIR versions                                 1.2
-  printf() buffer size                            1048576 (1024KiB)
+  printf() buffer size                            4194304 (4MiB)
   Built-in kernels                                
-  Device Extensions                               cl_khr_byte_addressable_store cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_spir cl_khr_int64 cl_khr_fp64 cl_khr_int64_base_atomics cl_khr_int64_extended_atomics
+  Device Extensions                               cl_khr_fp64 cl_amd_fp64 cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics cl_khr_local_int32_base_atomics cl_khr_local_int32_extended_atomics cl_khr_int64_base_atomics cl_khr_int64_extended_atomics cl_khr_3d_image_writes cl_khr_byte_addressable_store cl_khr_fp16 cl_khr_gl_sharing cl_amd_device_attribute_query cl_amd_vec3 cl_amd_printf cl_amd_media_ops cl_amd_media_ops2 cl_amd_popcnt cl_khr_image2d_from_buffer cl_khr_spir cl_khr_gl_event 
 
 NULL platform behavior
-  clGetPlatformInfo(NULL, CL_PLATFORM_NAME, ...)  Clover
-  clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, ...)   Success [MESA]
-  clCreateContext(NULL, ...) [default]            Success [MESA]
-  clCreateContext(NULL, ...) [other]              Success [POCL]
-  clCreateContextFromType(NULL, CL_DEVICE_TYPE_DEFAULT)  Success (1)
-    Platform Name                                 Clover
-    Device Name                                   NV96
+  clGetPlatformInfo(NULL, CL_PLATFORM_NAME, ...)  No platform
+  clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, ...)   No platform
+  clCreateContext(NULL, ...) [default]            No platform
+  clCreateContext(NULL, ...) [other]              Success [AMD]
   clCreateContextFromType(NULL, CL_DEVICE_TYPE_CPU)  No devices found in platform
   clCreateContextFromType(NULL, CL_DEVICE_TYPE_GPU)  Success (1)
-    Platform Name                                 Clover
-    Device Name                                   NV96
+    Platform Name                                 AMD Accelerated Parallel Processing
+    Device Name                                   Baffin
   clCreateContextFromType(NULL, CL_DEVICE_TYPE_ACCELERATOR)  No devices found in platform
   clCreateContextFromType(NULL, CL_DEVICE_TYPE_CUSTOM)  No devices found in platform
   clCreateContextFromType(NULL, CL_DEVICE_TYPE_ALL)  Success (1)
-    Platform Name                                 Clover
-    Device Name                                   NV96
-
-ICD loader properties
-  ICD loader Name                                 OpenCL ICD Loader
-  ICD loader Vendor                               OCL Icd free software
-  ICD loader Version                              2.2.11
-  ICD loader Profile                              OpenCL 2.1
+    Platform Name                                 AMD Accelerated Parallel Processing
+    Device Name                                   Baffin
