@@ -20,7 +20,7 @@ Number of devices                                 1
   Device Board Name (AMD)                         
   Device Topology (AMD)                           (n/a)
   Max compute units                               4
-  Max clock frequency                             1500MHz
+  Max clock frequency                             1000MHz
   Device Partition                                (core, cl_ext_device_fission)
     Max number of sub-devices                     4
     Supported partition types                     equally, by counts, by affinity domain
@@ -61,7 +61,7 @@ Number of devices                                 1
     Support is emulated in software               No
     Correctly-rounded divide and sqrt operations  No
   Address bits                                    64, Little-Endian
-  Global memory size                              5706018816 (5.314GiB)
+  Global memory size                              5706027008 (5.314GiB)
   Error Correction support                        No
   Max memory allocation                           2147483648 (2GiB)
   Unified memory for Host and Device              Yes
@@ -88,7 +88,7 @@ Number of devices                                 1
     Profiling                                     Yes
   Prefer user sync for interop                    Yes
   Profiling timer resolution                      1ns
-  Profiling timer offset since Epoch (AMD)        1514121289504866497ns (Sun Dec 24 11:14:49 2017)
+  Profiling timer offset since Epoch (AMD)        1514325538235623791ns (Tue Dec 26 19:58:58 2017)
   Execution capabilities                          
     Run OpenCL kernels                            Yes
     Run native kernels                            Yes
