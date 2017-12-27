@@ -12,6 +12,8 @@
 #include <iostream>
 #include <string>
 #include <algorithm>     // Just for the find_if
+#include <fstream>       // To read the kernel file
+#include <sstream>     // To use stringstream
 
 int main(int argc, char** argv)
 {
@@ -42,6 +44,27 @@ int main(int argc, char** argv)
   deviceName.erase(deviceName.begin(), std::find_if(deviceName.begin(), deviceName.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
 
   std::cout << " ------ My device is " << deviceName << std::endl;
+
+  // Create a context
+  cl::Context context(myDevice);
+
+  cl::Program::Sources sources;
+
+  // Read file mc_ocl.cl and read it in a kernel
+  std::ifstream kernelFile("mc.cl");
+
+  // Read the full contents to a string using iterators
+  // --- Remember to check how istreambuf and its iterators work
+  // A opção abaixo, aparentemente, não é muito eficiente
+  //  std::string kernelString((std::istreambuf_iterator<char>(kernelFile)), std::istreambuf_iterator<char>());
+  std::stringstream kernelStream;
+  kernelStream << kernelFile.rdbuf();
+  std::string kernelString = kernelStream.str();
+
+  std::cout << kernelString << std::endl;
+
+  // File source copied to cl::Program::sources
+  sources.push_back({kernelString.c_str(), kernelString.length()});
 
   return 0;
 }
