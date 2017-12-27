@@ -7,7 +7,7 @@
 #define CL_HPP_TARGET_OPENCL_VERSION 120
 #define CL_HPP_CL_1_2_DEFAULT_BUILD // O hornet tem o intel opencl 1.2
 
-#include <CL/cl2.hpp>
+#include <CL/cl.hpp>
 
 #include <iostream>
 #include <string>

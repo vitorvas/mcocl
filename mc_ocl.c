@@ -285,33 +285,16 @@ int main(int argc , char* argv[])
     cl_kernel my_kernel;
     my_kernel = clCreateKernel(my_program, "mc", NULL);
 
-    cl_float xf[SIZE];
-    cl_float yf[SIZE];
-    cl_float data[SIZE];
-
-    // Create a buffer with data to my kernel (I'm not using it to write, only to get
-    // the values of the kernel)
-    cl_mem bufferx, buffery, buffero, bufferb;
-    cl_int bound = SIZE;
-    
-    bufferx = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(cl_float), xf, NULL);
-    buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(cl_float), yf, NULL);
-    buffero = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(cl_float), NULL, NULL); 
-    bufferb = clCreateBuffer(my_context, CL_MEM_READ_ONLY, sizeof(cl_int), NULL, NULL);
-
-    // A tentative loop to launch N kernels
-    // Initialize counters
-    unsigned long int cl_total = 0;
-    unsigned long int cl_size = 0;
-    double cl_pi;
+    // The following variables store random numbers and also hold the OpenCL results
+    float xf[SIZE];
+    float yf[SIZE];
+    float data[SIZE];
 
     // Somehow the first two calls to drand48()
     // give 0.00... Check a better way of generate
     // random numbers in [0,1)
     drand48();
     drand48();
-
-    t = clock();
 
     // This loop call SIZE times the kernel and all function calls needed
     // to perform the calculation
@@ -322,6 +305,33 @@ int main(int argc , char* argv[])
       data[c]=0.0;
     }
     
+    // The memory management is done in two ways:
+    // 1) Using clRead/Write for memory management
+    // 2) Using clMap/Unmpa for memory management
+    // Results are measured using default time() function.
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////   
+    // (1)
+
+    // Create a buffer with data to my kernel (I'm not using it to write, only to get
+    // the values of the kernel)
+    cl_mem bufferx, buffery, buffero, bufferb;
+    int bound = SIZE;
+
+    // Time stamp before creating buffers
+    t = clock();
+    
+    bufferx = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(float), xf, NULL);
+    buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(float), yf, NULL);
+    buffero = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(float), NULL, NULL); 
+    bufferb = clCreateBuffer(my_context, CL_MEM_READ_ONLY, sizeof(int), NULL, NULL);
+
+    // A tentative loop to launch N kernels
+    // Initialize counters
+    unsigned long int cl_total = 0;
+    unsigned long int cl_size = 0;
+    double cl_pi;
+
     /* printf("\n --- BEFORE: "); */
     /* for(int c=0; c<SIZE; c++) */
     /* { */
@@ -330,26 +340,26 @@ int main(int argc , char* argv[])
     /* } */
     /* printf("\n"); */
 	
-	
     // Enqueue and execute the kernel
-    clEnqueueWriteBuffer(my_queue, bufferx, CL_FALSE, 0, SIZE*sizeof(cl_float), &xf, 0, NULL, NULL);
-    clEnqueueWriteBuffer(my_queue, buffery, CL_FALSE, 0, SIZE*sizeof(cl_float), &yf, 0, NULL, NULL);
-    clEnqueueWriteBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
-    clEnqueueWriteBuffer(my_queue, bufferb, CL_FALSE, 0, sizeof(cl_int), &bound, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, bufferx, CL_FALSE, 0, SIZE*sizeof(float), &xf, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, buffery, CL_FALSE, 0, SIZE*sizeof(float), &yf, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(float), &data, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, bufferb, CL_FALSE, 0, sizeof(int), &bound, 0, NULL, NULL);
 	
     clSetKernelArg(my_kernel, 0, sizeof(cl_mem), &bufferx);
     clSetKernelArg(my_kernel, 1, sizeof(cl_mem), &buffery);
     clSetKernelArg(my_kernel, 2, sizeof(cl_mem), &buffero);
-    clSetKernelArg(my_kernel, 3, sizeof(cl_int), &bufferb);
+    clSetKernelArg(my_kernel, 3, sizeof(int), &bufferb);
 	
     size_t global_work_size[] = {SIZE/3, SIZE/3, SIZE/3};
-	
 
     clEnqueueNDRangeKernel(my_queue, my_kernel, 3, NULL, global_work_size, NULL, 0, NULL, NULL);
 	
-    clEnqueueReadBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(cl_float), &data, 0, NULL, NULL);
+    clEnqueueReadBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(float), &data, 0, NULL, NULL);
 	
     clFinish(my_queue);
+
+    t = clock() - t;
 	
     //      printf(" --- After kernel run:\n");
     for(int c=0; c<SIZE; c++)
@@ -364,14 +374,39 @@ int main(int argc , char* argv[])
 
     cl_size += SIZE;
     
-    t = clock() - t;
-    
     printf(" --- OpenCL launch time elapsed: %f\n", (double)t/CLOCKS_PER_SEC);
     printf(" --- Size of work-group: %ld\n", SIZE);
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////   
+    // (2)
+    // IMPORTANT: this chunk of code is useless. The idea of mapping in OpenCL enqueuing is about
+    // data access for buffers. Buffers must be created anyway and they already are in this code 
+    // (previously).
     
+    // Just to make sure data is zero again before enqueuing the kernel.
+    for(int c=0; c<SIZE; c++)
+    {
+      data[c]=0.0;
+    }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // Queue was previously finished, must be re-initialized
+    my_queue = clCreateCommandQueueWithProperties(my_context, device_id, 0, NULL);
+    if(err != CL_SUCCESS)
+    {
+        printf(" ---- CL Error: %s\n", clGetErrorString(err));
+	return(errno);
+    }
+
+    t = clock();
+
+    void* memory_data;
+    memory_data = clEnqueueMapBuffer(my_queue, buffero, CL_TRUE, CL_MAP_READ, 0, SIZE*sizeof(float), 0, NULL, NULL, NULL);
+
+    clFinish(my_queue);
+
+    t = clock() - t;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
     
     printf("\n");
     printf("----------------------------------------------------------------------------------------- \n");

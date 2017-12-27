@@ -1,1 +1,1 @@
-gcc -I/opt/intel/opencl-1.2-6.4.0.25/include mc_ocl.c -Werror -o mc_ocl -std=gnu99 -lOpenCL -lm
+gcc -I/opt/AMDAPPSDK-3.0/include mc_ocl.c -Werror -o mc_ocl -std=gnu99 -lOpenCL -lm
