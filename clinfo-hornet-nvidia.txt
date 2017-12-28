@@ -1,0 +1,91 @@
+Number of platforms                               1
+  Platform Name                                   NVIDIA CUDA
+  Platform Vendor                                 NVIDIA Corporation
+  Platform Version                                OpenCL 1.1 CUDA 6.5.51
+  Platform Profile                                FULL_PROFILE
+  Platform Extensions                             cl_khr_byte_addressable_store cl_khr_icd cl_khr_gl_sharing cl_nv_compiler_options cl_nv_device_attribute_query cl_nv_pragma_unroll cl_nv_copy_opts 
+  Platform Extensions function suffix             NV
+
+  Platform Name                                   NVIDIA CUDA
+Number of devices                                 1
+  Device Name                                     Quadro FX 580
+  Device Vendor                                   NVIDIA Corporation
+  Device Vendor ID                                0x10de
+  Device Version                                  OpenCL 1.0 CUDA
+  Driver Version                                  340.104
+  Device OpenCL C Version                         OpenCL C 1.0 
+  Device Type                                     GPU
+  Device Available                                Yes
+  Device Profile                                  FULL_PROFILE
+  Device Topology (NV)                            PCI-E, 01:00.0
+  Max compute units                               4
+  Max clock frequency                             1125MHz
+  Compute Capability (NV)                         1.1
+  Max work item dimensions                        3
+  Max work item sizes                             512x512x64
+  Max work group size                             512
+  Compiler Available                              Yes
+  Preferred work group size multiple              32
+  Warp size (NV)                                  32
+  Preferred / native vector sizes                 
+    char                                                 1 / 1       
+    short                                                1 / 1       
+    int                                                  1 / 1       
+    long                                                 1 / 1       
+    half                                                 0 / 0        (n/a)
+    float                                                1 / 1       
+    double                                               0 / 0        (n/a)
+  Half-precision Floating-point support           (n/a)
+  Single-precision Floating-point support         (core)
+    Denormals                                     No
+    Infinity and NANs                             Yes
+    Round to nearest                              Yes
+    Round to zero                                 Yes
+    Round to infinity                             Yes
+    IEEE754-2008 fused multiply-add               Yes
+    Support is emulated in software               No
+    Correctly-rounded divide and sqrt operations  No
+  Double-precision Floating-point support         (n/a)
+  Address bits                                    32, Little-Endian
+  Global memory size                              536150016 (511.3MiB)
+  Error Correction support                        No
+  Max memory allocation                           134217728 (128MiB)
+  Unified memory for Host and Device              No
+  Integrated memory (NV)                          No
+  Minimum alignment for any data type             128 bytes
+  Alignment of base address                       2048 bits (256 bytes)
+  Global Memory cache type                        None
+  Image support                                   Yes
+    Max number of samplers per kernel             16
+    Max 2D image size                             4096x16383 pixels
+    Max 3D image size                             2048x2048x2048 pixels
+    Max number of read image args                 128
+    Max number of write image args                8
+  Local memory type                               Local
+  Local memory size                               16384 (16KiB)
+  Registers per block (NV)                        8192
+  Max constant buffer size                        65536 (64KiB)
+  Max number of constant args                     9
+  Max size of kernel argument                     4352 (4.25KiB)
+  Queue properties                                
+    Out-of-order execution                        Yes
+    Profiling                                     Yes
+  Profiling timer resolution                      1000ns
+  Execution capabilities                          
+    Run OpenCL kernels                            Yes
+    Run native kernels                            No
+    Kernel execution timeout (NV)                 Yes
+  Concurrent copy and kernel execution (NV)       Yes
+    Number of async copy engines                  1
+  Device Extensions                               cl_khr_byte_addressable_store cl_khr_icd cl_khr_gl_sharing cl_nv_compiler_options cl_nv_device_attribute_query cl_nv_pragma_unroll cl_nv_copy_opts  cl_khr_global_int32_base_atomics cl_khr_global_int32_extended_atomics 
+
+NULL platform behavior
+  clGetPlatformInfo(NULL, CL_PLATFORM_NAME, ...)  No platform
+  clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, ...)   No platform
+  clCreateContext(NULL, ...) [default]            No platform
+  clCreateContext(NULL, ...) [other]              Success [NV]
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_CPU)  No platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_GPU)  No platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_ACCELERATOR)  No platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_CUSTOM)  No platform
+  clCreateContextFromType(NULL, CL_DEVICE_TYPE_ALL)  No platform

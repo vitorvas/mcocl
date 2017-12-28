@@ -1,0 +1,1 @@
+g++ -std=c++11 -I/opt/intel/opencl-1.2-6.4.0.25/include mc_ocl.cpp -o mc_oclpp -lOpenCL

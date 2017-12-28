@@ -283,7 +283,7 @@ int main(int argc , char* argv[])
     printf("\n Program build log: \n%s\n\n", log);
 
     cl_kernel my_kernel;
-    my_kernel = clCreateKernel(my_program, "mc", NULL);
+    my_kernel = clCreateKernel(my_program, "simple_add", NULL);
 
     // The following variables store random numbers and also hold the OpenCL results
     float xf[SIZE];
