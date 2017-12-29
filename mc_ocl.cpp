@@ -61,10 +61,62 @@ int main(int argc, char** argv)
   kernelStream << kernelFile.rdbuf();
   std::string kernelString = kernelStream.str();
 
-  std::cout << kernelString << std::endl;
+  //  std::cout << kernelString << std::endl;
 
   // File source copied to cl::Program::sources
   sources.push_back({kernelString.c_str(), kernelString.length()});
+
+  cl::Program program(context, sources);
+  if(program.build({myDevice})!=CL_SUCCESS){
+    std::cout <<" Error building: " << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(myDevice) << std::endl;
+    exit(1);
+  }
+ 
+ 
+  // create buffers on the device
+  cl::Buffer bufA(context, CL_MEM_READ_WRITE, sizeof(int)*10);
+  cl::Buffer bufB(context, CL_MEM_READ_WRITE, sizeof(int)*10);
+  cl::Buffer bufC(context, CL_MEM_READ_WRITE, sizeof(int)*10);
+ 
+  int A[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+  int B[] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
+ 
+  //create myQueue to which we will push commands for the device.
+  cl::CommandQueue myQueue(context, myDevice);
+ 
+  //write arrays A and B to the device
+  myQueue.enqueueWriteBuffer(bufA, CL_TRUE, 0, sizeof(int)*10, A);
+  myQueue.enqueueWriteBuffer(bufB, CL_TRUE, 0, sizeof(int)*10, B);
+ 
+ 
+  // This functor syntax does not work in CAPRARA
+  // cl::KernelFunctor simple_add(cl::Kernel(program,"simple_add"),queue,cl::NullRange,cl::NDRange(10),cl::NullRange);
+  // simple_add(bufA,bufB,bufC);
+ 
+  //alternative way to run the kernel
+  cl::Kernel kernel=cl::Kernel(program,"simple_add");
+
+  kernel.setArg(0, bufA);
+  kernel.setArg(1, bufB);
+  kernel.setArg(2, bufC);
+
+  myQueue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(10), cl::NullRange);
+  
+  // After running the kernel, results are retrieve from device's memory
+  int C[10];
+
+  myQueue.enqueueReadBuffer(bufC, CL_TRUE, 0, sizeof(int)*10, C);
+
+  std::cout << " --- Result: " << std::endl;
+  for(int i=0; i<10; ++i)
+  {
+    std::cout << C[i] << " ";
+  }
+  std::cout << std::endl;
+
+  myQueue.finish();
+
+  // Shouldn't I release myQueue and the context like in C version? Check it.
 
   return 0;
 }
