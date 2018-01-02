@@ -37,6 +37,12 @@ int main(int argc, char** argv)
   cl::Device myDevice = vecDevices.at(0);
   std::string deviceName = myDevice.getInfo<CL_DEVICE_NAME>();
 
+  // Check device's byte alignement
+  if(CL_TRUE == myDevice.getInfo<CL_DEVICE_ENDIAN_LITTLE>())
+    std::cout << " ------ My device is LITTLE ENDIAN" << std::endl;
+  else
+    std::cout << " ------ My device is BIG ENDIAN" << std::endl;
+
   // That's why Python is getting the cheers: can't easily trim the string
   // Well, more or less easily. But easily means: one command
   deviceName.erase(deviceName.begin(), std::find_if(deviceName.begin(), deviceName.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
