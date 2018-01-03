@@ -32,7 +32,7 @@ Number of devices:				 1
   Native vector width double:			 1
   Max clock frequency:				 1180Mhz
   Address bits:					 64
-  Max memory allocation:			 3352147148
+  Max memory allocation:			 3355447705
   Image support:				 Yes
   Max number of images read arguments:		 128
   Max number of images write arguments:		 8
@@ -55,8 +55,8 @@ Number of devices:				 1
   Cache type:					 Read/Write
   Cache line size:				 64
   Cache size:					 16384
-  Global memory size:				 4167479296
-  Constant buffer size:				 3352147148
+  Global memory size:				 4156547072
+  Constant buffer size:				 3355447705
   Max number of constant args:			 8
   Local memory type:				 Scratchpad
   Local memory size:				 32768
@@ -94,7 +94,7 @@ Number of devices:				 1
   Queue on Device properties:				 
     Out-of-Order:				 No
     Profiling :					 No
-  Platform ID:					 0x7f2d31706550
+  Platform ID:					 0x7f515dbb2550
   Name:						 Baffin
   Vendor:					 Advanced Micro Devices, Inc.
   Device OpenCL C version:			 OpenCL C 1.2 

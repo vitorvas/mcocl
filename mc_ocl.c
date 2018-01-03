@@ -280,10 +280,10 @@ int main(int argc , char* argv[])
     // The clGetProgramBuildInfo deserves a better implementation...
     char log[10240] = "";
     err = clGetProgramBuildInfo(my_program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(log), log, NULL);
-    printf("\n Program build log: \n%s\n\n", log);
+    printf("\n Program build log: \n%s\n", log);
 
     cl_kernel my_kernel;
-    my_kernel = clCreateKernel(my_program, "simple_add", NULL);
+    my_kernel = clCreateKernel(my_program, "mc", NULL);
 
     // The following variables store random numbers and also hold the OpenCL results
     float xf[SIZE];
@@ -324,6 +324,9 @@ int main(int argc , char* argv[])
     bufferx = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(float), xf, NULL);
     buffery = clCreateBuffer(my_context, CL_MEM_READ_ONLY|CL_MEM_COPY_HOST_PTR, SIZE*sizeof(float), yf, NULL);
     buffero = clCreateBuffer(my_context, CL_MEM_WRITE_ONLY, SIZE*sizeof(float), NULL, NULL); 
+
+    // ATTENTION: my former implementation allocated "bound" as read only.
+    // investigate what is wrong in using it (below instead of NULL)
     bufferb = clCreateBuffer(my_context, CL_MEM_READ_ONLY, sizeof(int), NULL, NULL);
 
     // A tentative loop to launch N kernels
@@ -341,23 +344,39 @@ int main(int argc , char* argv[])
     /* printf("\n"); */
 	
     // Enqueue and execute the kernel
-    clEnqueueWriteBuffer(my_queue, bufferx, CL_FALSE, 0, SIZE*sizeof(float), &xf, 0, NULL, NULL);
-    clEnqueueWriteBuffer(my_queue, buffery, CL_FALSE, 0, SIZE*sizeof(float), &yf, 0, NULL, NULL);
-    clEnqueueWriteBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(float), &data, 0, NULL, NULL);
-    clEnqueueWriteBuffer(my_queue, bufferb, CL_FALSE, 0, sizeof(int), &bound, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, bufferx, CL_TRUE, 0, SIZE*sizeof(float), &xf, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, buffery, CL_TRUE, 0, SIZE*sizeof(float), &yf, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, buffero, CL_TRUE, 0, SIZE*sizeof(float), &data, 0, NULL, NULL);
+    clEnqueueWriteBuffer(my_queue, bufferb, CL_TRUE, 0, sizeof(int), &bound, 0, NULL, NULL);
 	
     clSetKernelArg(my_kernel, 0, sizeof(cl_mem), &bufferx);
     clSetKernelArg(my_kernel, 1, sizeof(cl_mem), &buffery);
     clSetKernelArg(my_kernel, 2, sizeof(cl_mem), &buffero);
     clSetKernelArg(my_kernel, 3, sizeof(int), &bufferb);
 	
-    size_t global_work_size[] = {SIZE/3, SIZE/3, SIZE/3};
+    size_t global_work_size[] = {SIZE, 0, 0};
 
-    clEnqueueNDRangeKernel(my_queue, my_kernel, 3, NULL, global_work_size, NULL, 0, NULL, NULL);
+    err = clEnqueueNDRangeKernel(my_queue, my_kernel, 1, NULL, global_work_size, NULL, 0, NULL, NULL);
+    if(err != CL_SUCCESS)
+    {
+      printf(" ---- CL Error when running kernel: %s\n", clGetErrorString(err));
+    }
 	
-    clEnqueueReadBuffer(my_queue, buffero, CL_FALSE, 0, SIZE*sizeof(float), &data, 0, NULL, NULL);
+    err = clEnqueueReadBuffer(my_queue, buffero, CL_TRUE, 0, SIZE*sizeof(float), &data, 0, NULL, NULL);
+    if(err != CL_SUCCESS)
+    {
+      printf(" ---- CL Error from enqueuing buffer: %s\n", clGetErrorString(err));
+    }
 	
     clFinish(my_queue);
+
+    // Is data being processed?
+    /* printf("\n"); */
+    /* for(int c=0; c<SIZE; c++) */
+    /* { */
+    /*   printf("%.2f ", data[c]); */
+    /* } */
+    /* printf("\n\n"); */
 
     t = clock() - t;
 	
