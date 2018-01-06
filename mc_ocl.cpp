@@ -49,6 +49,14 @@ int main(int argc, char** argv)
 
   std::cout << " ------ My device is " << deviceName << std::endl;
 
+  // Check device's address space details
+  std::cout << " ------- CL_DEVICE_GLOBAL_MEM_SIZE: " << myDevice.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>() << std::endl;
+  std::cout << " ------- CL_DEVICE_GLOBAL_MEM_CACHE_SIZE: " << myDevice.getInfo<CL_DEVICE_GLOBAL_MEM_CACHE_SIZE>() << std::endl;
+  std::cout << " ------- CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE: " << myDevice.getInfo<CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE>() << std::endl;
+
+  //  The line below does not compile in Poutine since it hasn't local memory (as checkd in clinfo)
+  //  std::cout << " ------- CL_DEVICE_MEM_LOCAL_SIZE: " << myDevice.getInfo<CL_DEVICE_MEM_LOCAL_SIZE>() << std::endl;
+ 
   return 0;
 }
 
