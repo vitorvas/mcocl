@@ -1,0 +1,1 @@
+g++ -std=c++11 -I/opt/AMDAPPSDK-3.0/include mc_ocl.cpp -o mc_oclpp -lOpenCL
