@@ -15,9 +15,9 @@
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
 //# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
-//# define SIZE (long int)8192                // O parâmetro que estava sendo passado estava como SIZE
+# define SIZE (long int)8192*64  // Teste caprara - O parâmetro que estava sendo passado estava como SIZE
                 // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
-# define SIZE (long int)256*3
+//# define SIZE (long int)256*3
 
 // The proportion of points inside the circle
 // above the total number of points gives pi/4

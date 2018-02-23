@@ -21,7 +21,10 @@
                      __global float* data, const unsigned int boundary)
     {
         int id = get_global_id(0);
-	float point = 0.5;
+//	__local float point;
+//	point = 0.5;
+
+	__private float point = 0.5;
 
 	if(id<boundary)
 	{
