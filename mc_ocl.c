@@ -199,8 +199,8 @@ int main(int argc , char* argv[])
     // When I know who is who, get the device I want
     // OBS: intermitent error in CAPRARA when using GPU. Sometimes I get SEGFAULT,
     // sometimes it runs (without filling my data vector).
-    // err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_GPU, 1, new_device, NULL);
-    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_CPU, 1, new_device, NULL);
+    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_GPU, 1, new_device, NULL);
+    //    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_CPU, 1, new_device, NULL);
 
     if(err != CL_SUCCESS)
       {
