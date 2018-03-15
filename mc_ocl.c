@@ -15,9 +15,9 @@
 // a 1x1 square belongs to the inscribled circle
 // of diameter 1
 //# define SIZE (long int)691000 // Achei o erro! Estava no clEnqueueNDRangeKernel
-# define SIZE (long int)8192                // O parâmetro que estava sendo passado estava como SIZE
+//# define SIZE (long int)8192                // O parâmetro que estava sendo passado estava como SIZE
                 // e não apenas a dimensao dos meus dados. Mudei para 1, e ok.
-//# define SIZE (long int)32
+# define SIZE (long int)32
 
 // The proportion of points inside the circle
 // above the total number of points gives pi/4
@@ -316,7 +316,7 @@ int main(int argc , char* argv[])
 
     // This loop call SIZE times the kernel and all function calls needed
     // to perform the calculation
-    for(int x=0; x<SIZE; x++)
+    for(int x=0; x<1; x++)
     {
       for(int c=0; c<SIZE; c++)
 	{

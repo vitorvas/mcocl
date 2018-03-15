@@ -15,9 +15,6 @@ const char* clGetErrorString(int errorCode) {
 		case -1057: return "CL_DEVICE_PARTITION_FAILED_EXT";
 		case -1058: return "CL_INVALID_PARTITION_COUNT_EXT";
 		case -1059: return "CL_INVALID_PARTITION_NAME_EXT";
-		case -1000: return "CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR";
-		case -1093: return "CL_INVALID_EGL_OBJECT_KHR";
-		case -1092: return "CL_EGL_RESOURCE_NOT_ACQUIRED_KHR";
 		case 0: return "CL_SUCCESS";
 		case -1: return "CL_DEVICE_NOT_FOUND";
 		case -2: return "CL_DEVICE_NOT_AVAILABLE";
@@ -78,6 +75,9 @@ const char* clGetErrorString(int errorCode) {
 		case -68: return "CL_INVALID_DEVICE_PARTITION_COUNT";
 		case -69: return "CL_INVALID_PIPE_SIZE";
 		case -70: return "CL_INVALID_DEVICE_QUEUE";
+		case -1000: return "CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR";
+		case -1093: return "CL_INVALID_EGL_OBJECT_KHR";
+		case -1092: return "CL_EGL_RESOURCE_NOT_ACQUIRED_KHR";
 		default: return "CL_UNKNOWN_ERROR";
 	}
 }
