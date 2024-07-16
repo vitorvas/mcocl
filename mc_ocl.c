@@ -199,8 +199,8 @@ int main(int argc , char* argv[])
     // When I know who is who, get the device I want
     // OBS: intermitent error in CAPRARA when using GPU. Sometimes I get SEGFAULT,
     // sometimes it runs (without filling my data vector).
-    err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_GPU, 1, new_device, NULL);
-    //    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_CPU, 1, new_device, NULL);
+    // err = clGetDeviceIDs(id_plat[GPU_plat], CL_DEVICE_TYPE_GPU, 1, new_device, NULL);
+    err = clGetDeviceIDs(id_plat[CPU_plat], CL_DEVICE_TYPE_CPU, 1, new_device, NULL);
 
     if(err != CL_SUCCESS)
       {
@@ -306,14 +306,9 @@ int main(int argc , char* argv[])
     unsigned long int cl_size = 0;
     double cl_pi;
 
-    // Somehow the first two calls to drand48()
-    // give 0.00... Check a better way of generate
-    // random numbers in [0,1)
-    drand48();
-    drand48();
-
     t = clock();
-
+    srand48(t);
+    
     // This loop call SIZE times the kernel and all function calls needed
     // to perform the calculation
     for(int x=0; x<SIZE; x++)
